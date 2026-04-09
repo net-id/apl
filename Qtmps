@@ -1,0 +1,24 @@
+#define QRL 515
+#define QHT 517
+#define QPS 518
+#define QEC 520
+#define QTP 521
+#define QLX 524
+#define QER 526
+#define ALFA 527
+#define OMEG 528
+#define QDF 529
+#define QDG 530
+#define QDQD 531
+#define QDA 532
+#define QDW 533
+#define QD0 534
+#define QD1 535
+#define QD2 536
+#define QD3 537
+#define QD4 538
+#define MSFO 20 /* delete this when new file system (variable # files)*/
+#define SFCB 39 /* size of file control block in words */
+#define A600 /* */
+/*For A600 version recompile m3 and rs in code.
+      Changes in ma n e p are utilised in .a600 version */

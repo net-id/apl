@@ -1,0 +1,13 @@
+As well as looking for ...
+ 
+ if(vt=1,mgn())return;
+ and changing them to :
+
+   vt=1;
+   if(mgn())return;
+
+we then need to run :
+
+s/if *({[!=a-z0-9]*[()]*} *) *return *;/RTNEON(@1);  /
+
+Change all 0x8000 to <0 ...

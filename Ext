@@ -1,0 +1,58 @@
+#include "defs"
+extern long *Ib,*Ib0,*Ib1,*Ib2,*Ib3,*Ib4,*ups,*vrp,nw();
+#ifdef A1000
+extern long pget();
+extern long rp,up,vp,wp,un,vn,wn,uo,vo,wo,px,py,pz,n,n0,n1,n2,n3,is;
+extern long Lgp,Tep,Ssp,Sp,Tsp,Mtp,Stp,Grb,Mmp,Qrl,ixl,iyl,mxl,myl,tvp;
+#else
+extern long *pget();
+extern itype *Lgp,*Tep,*Ssp,*Sp,*Tsp,*Mtp,*Stp,*tvp;
+extern long Mmp,Grb,Qrl,ixl,iyl,mxl,myl;
+extern itype *rp,*up,*vp,*wp,*px,*py,*pz,*RealScAd;
+extern long un,vn,wn,uo,vo,wo,n,n0,n1,n2,n3,is;
+#endif
+extern itype Ht[],Svi,Nsi,Lsi,Nmi,Lmi,Qio,Qpp,Qpw,bt0[],bt1[],ia[],Bsz,*st1;
+#ifdef A1000
+extern u,ut,ue,s,st,se,w,wt;
+#else
+extern struct {
+ itype Regs1u;
+ itype Regs1ut;
+ itype Regs1ue;
+ itype Regs1s;
+ itype Regs1st;
+ itype Regs1se;
+ itype Regs1w;
+ itype Regs1wt;
+}    Regs1;
+#endif
+extern itype v,vt,u_,w_,t0,ur,vr,wr,e,eci,tmi;
+extern itype ef,ef0,m,m0,k,ix,iy,iz,mx,my,mz,xo,yo,zo,bs,wpe,len,si,sl,bc,mi;
+extern mgn(),mdc(),mic(),ifbrk();
+extern (*f)(),(*f0)(),(*g)();
+extern itype *st0;
+#ifdef A1000
+extern wmv();
+extern of,lc,tv,tn,d0,d1,d2,t,tt,ml,r,rt,rs,pl;
+extern wmva();
+#else
+extern struct{
+ itype Regs0of;
+ itype Regs0lc;
+ itype Regs0tv;
+ itype Regs0tn;
+ itype Regs0d0;
+ itype Regs0d1;
+ itype Regs0d2;
+ itype Regs0t;
+ itype Regs0tt;
+ itype Regs0ml;
+ itype Regs0r;
+ itype Regs0rt;
+ itype Regs0rs;
+ itype Regs0pl;
+}    Regs0;
+#endif
+extern char *cx,*cy,*cz,*sa,Cb0[];
+extern double fs,Qct,Qc1,Qc2,*Qcp;
+

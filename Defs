@@ -1,0 +1,160 @@
+#define JUSTC
+#ifdef JUSTC
+typedef int  itype;     /*The native addressing mode and natural word type*/
+#define MAP(p) z= (itype*)(p)
+#define CMP(p) cz=(char*)(p)
+#define CZM    CMP(pz)
+#define MMP(i) z=(itype*)((struct msst*)Mtp+(i)) /*Mtp is pointer to struct MI*/
+#define RTNEON(val) {int returnvalue; if(returnvalue=(val))return returnvalue;}
+#define SMP(i) z=(itype*)(Stp-i*32)  /*Stp is pointer to struct SI*/
+#define m1() x=px
+#define m2() x=px,y=py
+#define m3() x=px,y=py,z=pz
+#define v0i() ef0=NOERROR,z=(itype*)pz,m0=n0,(*f0)()
+#define vc0 v0i
+#define v0() starf0()
+#define v1() ef=0,starf()
+#define v2() ef=1,starf()
+#define v2l() ef=1,starf()
+#define v3() ef=2,starf()
+#define wa() ((Grb+(Ssp-Tep))/BPA)
+#define SNL 19
+#define MVW(x,y,m) wmva(x,y,m) /*Move words subroutine written in assembler*/
+#define MVW1(x,y,z) wmva(x1=(itype)(x),x2=(itype)(y),x3=(z))
+#define wmv() wmva(px,py,n)
+#define MBT(x,y,z) bmv((char*)(x),(char*)(y),z)
+#define MBT1 MBT
+#define RPL(y,n,val) *(char*)y=(val),MBT((char*)(y),((char*)y)+1,n-1)
+#define RPLW(y,n,val) *y=(itype)(val),MVW((itype*)(y),((itype*)y)+1,n-1)
+#define RPLW1 RPLW
+#define CBT1(x,y,z) cbts(x1=(x),x2=(y),x3=(z))
+#define IFWRDSEQGO(x,y,z,loc) if(!wordsneq(x,y,z))goto loc
+#define IFWRDSNEQGO(x,y,z,loc) if(wordsneq(x,y,z))goto loc
+#define BRK 
+/*#define BRK if(ifbrk())if(bc||!gtrlu())return ef=1003;else bc=1;*/
+#define MAXRANK 15            /*Maximum # of dimensions*/
+#define SCRATCH RealScAd      /*Where scratch lives in the ws*/
+#define BSCRATCH 4096         /*Size of scratch in bytes*/
+#define BITS (8*sizeof(itype))  /*32*/
+#define BPA 1                 /*natural byte addressing resolution*/
+#define BPW (sizeof(itype))     /*4*/
+#define BPL (sizeof(long))    /*4*/
+#define BPF (sizeof(double))  /*8*/
+struct msst {long *msp,mstr,msc;};
+struct vwst {long wsl;itype wsi;long vdim;};
+struct wsst {long wsl;itype wsi;};
+struct ssst {long ssl;itype ssi;long ssc;};
+#define IFOVFGO(LAB)  /*Assume nothing overflows*/
+#define IFNOVFGO(LAB) goto LAB /*Assume nothing overflows*/ 
+#define gdata() (*g)()
+#define of (Regs0.Regs0of)
+#define lc (Regs0.Regs0lc)
+#define tv (Regs0.Regs0tv)
+#define tn (Regs0.Regs0tn)
+#define d0 (Regs0.Regs0d0)
+#define d1 (Regs0.Regs0d1)
+#define d2 (Regs0.Regs0d2)
+#define t (Regs0.Regs0t)
+#define tt (Regs0.Regs0tt)
+#define ml (Regs0.Regs0ml)
+#define r (Regs0.Regs0r)
+#define rt (Regs0.Regs0rt)
+#define rs (Regs0.Regs0rs)
+#define pl (Regs0.Regs0pl)
+
+#define u (Regs1.Regs1u)
+#define ut (Regs1.Regs1ut)
+#define ue (Regs1.Regs1ue)
+#define s (Regs1.Regs1s)
+#define st (Regs1.Regs1st)
+#define se (Regs1.Regs1se)
+#define w (Regs1.Regs1w)
+#define wt (Regs1.Regs1wt)
+#define INTEL
+
+#else
+typedef int itype;
+#define MAP(p) p;asm{ext ".LBP";jsb ".LBP";stb z;}
+#define CMP(p) p;asm{ext ".LBP";jsb ".LBP";cle,elb;stb cz;}
+#define CZM    CMP(pz/2);cz+=(int)pz&1;
+#define MMP(i) asm{ldb i;cla;rrl 2;ext".LPX";jsb".LPX";def Mtp;stb z;}
+#define SMP(i) \
+asm{ldb i;lda "=b7777";cmb,inb;rrl 4;ext".LPX";jsb".LPX";def Stp;stb z;}
+#define SNL 25
+#define RTNEON(val) if(val)return
+#define MVW(x,y,m) asm{lda x;ldb y;mvw m;}   /*Move words*/
+#define MVW1(x,y,z) x1=(x),x2=(y),x3=(z),mvw()
+#define MBT(x,y,m) asm{lda x;ldb y;mbt m;}   /*Move bytes*/
+#define MBT1(x,y,z) x1=x,x2=y,x3=z,mbt()
+#define CBT1(x,y,z) x1=x,x2=y,x3=z,cbts()
+#define IFCMWGO(x,y,z,loc) asm{lda x;ldb y;cmw z;jmp loc;jmp *+1;};
+#define BRK if(ifbrk())if(bc||!gtrlu())return ef=1003;else bc=1;
+#define MAXRANK 15             /*Maximum # of dimensions*/
+#define SCRATCH 0L
+#define BSCRATCH 4096        /*Size of scratch in bytes*/
+#define BITS (8*sizeof(int)) /*16*/
+#define BPA 2                /*natural byte addressing resolution*/
+#define BPW sizeof(int)      /*2*/
+#define BPL sizeof(long)     /*4*/
+#define BPF sizeof(double)   /*8*/
+struct msst {long msp;mstr,msc;};
+struct vwst {long wsl;wsi;long vdim;};
+struct wsst {long wsl;wsi;};
+struct ssst {ssl,ssi,ssc;};
+#define IFOVFGO(LAB) asm{socc;};goto LAB
+#define IFNOVFGO(LAB) asm{sosc;};goto LAB
+#endif
+#if defined(A1000)
+#define L2BITS 4             /*Log Base 2 of BITS*/
+#elif defined(INTEL)
+#define L2BITS 4             /*Log Base 2 of BITS*/
+#else
+#define L2BITS 5             /*Log Base 2 of BITS*/
+#endif
+extern itype *x,*y,*z;
+#define lx ((long*)x)
+#define ly ((long*)y)
+#define lz ((long*)z)
+#define dx ((double*)x)
+#define dy ((double*)y)
+#define dz ((double*)z)
+#define ms ((struct msst *)z)
+#define ws ((struct wsst *)z)
+#define ss ((struct ssst *)z)
+#define SWS (sizeof(struct wsst)/BPW)
+#define BPE (sizeof(int))  /*Bytes per enclosed/mi/si/pi*/
+#define BPI (sizeof(int))  /*Bytes per enclosed/mi/si/pi*/
+#define RTE
+#define RTN return
+#define FSI 512   /*First Symbol Index*/
+#define MAXLONG 2147483647L   /*Largest +tve long*/
+#define MAXLONGD 2147483647.0   /*Largest +tve long as a real */
+#define LGP MAXLONG
+#define BSZ 512  /*Size of Cb0*/
+#define DAT 2
+#define FUN 3
+#define MOP 4
+#define DOP 5
+#define NIL 6
+#define BOO 0
+#define INT 1
+#define F_P 2
+#define CHA 4
+#define ENC 10
+/* TRACE STOP LAMP : DIAMOND ( ) BRANCH ASSIGN [ ] ; _ DEL */
+#define TRC 1
+#define STP 2
+#define LAT 8
+#define COT 9
+#define DIT 10
+#define LPT 11
+#define RPT 12
+#define BRT 13
+#define AST 14
+#define LBT 15
+#define RBT 16
+#define SMT 17
+#define UNT 18
+#define DET 19
+#include "aplerrno.h"
+
