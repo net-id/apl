@@ -79,7 +79,8 @@ char *argv[];
 #ifdef A1000
    st0= 1+&st0,st1= &st1;
 #else
-   st1= 1+&st0,st0= &st1; /*Apollo allocates memory in descending order*/
+   st0= (itype*)&Regs0;   /*Point at the two register save areas*/
+   st1= (itype*)&Regs1;
 #endif
 /**T   clear(),out();*/
    clrws();qoutf=0;
@@ -113,11 +114,12 @@ IN:
    }
 #endif
    if(ef=tok()){
+      fprintf(stderr,"DBG tok()=%d\n",ef);
       if(ef!=16){
 LNERR:
          if(ep=v,len=v=0,e= -1,trp()) goto L1;
       }
-      else if(sy())goto L1; 
+      else if(sy())goto L1;
       goto IN;
    }
 L1:
@@ -129,7 +131,8 @@ L1:
 #endif
    tv=v,v=0,ef= -1;
 L:
-   switch(ef=ex()){
+   {int dbg_ef=ex(); fprintf(stderr,"DBG ex()=%d ut=%d\n",dbg_ef,(int)ut); ef=dbg_ef;}
+   switch(ef){
    case 0:
       goto IN;
    case 100:

@@ -1,11 +1,16 @@
-#ifdef A1000
+/*
 HPC,NR,W,L,MC,"DF,7 Dyadic Functions                <861028.1333>"
-;
-#else
+This file contains the code for the dyadic functions in the APL interpreter.
+The code is written in C17 and includes some assembly code for the A1000 architecture.
+The functions include iad (integer addition), isu (integer subtraction), imu (integer multiplication),
+imx (integer maximum), imn (integer minimum), ire (integer residue), fad (floating point addition), fsu (floating point subtraction), fmu (floating point multiplication),
+fmx (floating point maximum), fmn (floating point minimum), fre (floating point residue), and df (dyadic function).
+The code also defines some constants and includes some header files.
+
+*/
 #include <errno.h>
 extern int errno;
 #include <math.h>
-#endif
 #include "ext"
 #define b1 k= -m;L0:
 #define b3 b1 asm{dld *z;
@@ -19,7 +24,8 @@ extern fct(),cget(),cu(),cw(),xu(),xw(),zero(),uget(),wget();
 extern c1fi();
 extern double f9;
 extern long wset();
-static c,j,sj1;
+static c,sj1,ji;  /* ji = j-as-integer for boolean flag uses */
+static itype *j;   /* j = j-as-pointer for ws pointer saves */
 static double f1,f2=0.0,f3=1.0;
 
 iad(){
@@ -170,128 +176,60 @@ static fad(){
   
 fsu(){
 /*O:Floating point subtraction*/
-#ifdef A1000
-   asm{
-      ext"DVSUB";
-      jsb"DVSUB";
-      def *+8;
-      def *z;
-      def iz;
-      def *x;
-      def ix;
-      def *y;
-      def"=D1";
-      def m;
-   };
-#else
    k= -m;
    do{
       *dy++= *dz-*dx;
       dx+=ix,dz+=iz;
    }while(++k);
-#endif
+
 }
   
 fmu(){
 /*O:Floating point multiplication*/
-#ifdef A1000
-   asm{
-      ext"DVMPY";
-      jsb"DVMPY";
-      def *+8;
-      def *z;
-      def iz;
-      def *x;
-      def ix;
-      def *y;
-      def"=D1";
-      def m;
-   };
-#else
    k= -m;
    do{
       *dy++= *dz * *dx;
       dx+=ix,dz+=iz;
    }while(++k);
-#endif
+
 }
   
-fmax(){
-/*O:Floating point maximum*/
-#ifdef A1000
-   asm{
-      jsb".TSUB";
-      def f1;
-      def *z;
-      def *x;
-      lda f1;
-      ldb z;
-      ssa;
-      ldb x;
-      stb j;
-      jsb".CFER";
-      def *y;
-      def *j;
-   };
-#else
-   k= -m;
-   do{
-      *dy++= *dz>*dx?*dz:*dx;
-      dx+=ix,dz+=iz;
-   }while(++k);
-#endif
+apl_fmax(){
+/*O:Floating point maximum (scalar, used by fmx loop)*/
+   *dy= *dz>*dx?*dz:*dx;
+
 }
-  
-fmin(){
-/*O:Floating point minimum*/
-#ifdef A1000
-   asm{
-      jsb".TSUB";
-      def f1;
-      def *z;
-      def *x;
-      lda f1;
-      ldb x;
-      ssa;
-      ldb z;
-      stb j;
-      jsb".CFER";
-      def *y;
-      def *j;
-   };
-#else
-   k= -m;
-   do{
-      *dy++= *dz<*dx?*dz:*dx;
-      dx+=ix,dz+=iz;
-   }while(++k);
-#endif
+
+apl_fmin(){
+/*O:Floating point minimum (scalar, used by fmn loop)*/
+   *dy= *dz<*dx?*dz:*dx;
+
 }
-  
+
 fmx(){
 /*O:Floating piont maximum*/
 #ifdef A1000
-   b1 fmax(),x+=xo,z+=zo,++dy e1
+   b1 apl_fmax(),x+=xo,z+=zo,++dy e1
 #else
    k= -m;
    do{
-      fmax();
+      apl_fmax();
       ++dy;
-      x+=xo,z+=zo;
+      dx+=ix,dz+=iz;
    }while(++k);
 #endif
 }
-  
+
 fmn(){
 /*O:Floating pioint minimum*/
 #ifdef A1000
-   b1 fmin(),x+=xo,z+=zo,++dy e1
+   b1 apl_fmin(),x+=xo,z+=zo,++dy e1
 #else
    k= -m;
    do{
-      fmin();
+      apl_fmin();
       ++dy;
-      x+=xo,z+=zo;
+      dx+=ix,dz+=iz;
    }while(++k);
 #endif
 }
@@ -400,27 +338,27 @@ sbf(){
     SET1 the answer is all ones
 */
   
-   j=w_*2;  /*Twice as the scalar can only be of 2 choices (0,1)*/
-   if(bs)++j;  /*Increment the index if the arg is a 1*/
-   switch(j=boot[j]){   /*Select the boolean transform required*/
+   ji=w_*2;  /*Twice as the scalar can only be of 2 choices (0,1)*/
+   if(bs)++ji;  /*Increment the index if the arg is a 1*/
+   switch(ji=boot[ji]){   /*Select the boolean transform required*/
    case NOTIT:          /*Not the result*/
       return not();
    case SAME:           /*Copy the arg*/
       MVW(x,y,m);
-      return;
+      return 0;
    }
 #ifdef A1000
-   k=m-1;         /*How many words of j do we need -1 */
+   k=m-1;         /*How many words of ji do we need -1 */
    asm{
       lda y;      /*Where to put the value*/
-      ldb j;      /*what value to put in*/
+      ldb ji;     /*what value to put in*/
       stb *0;     /*Put it in the first place*/
       ldb 0;      /*Get the src address*/
       inb;        /*Add 1 to it*/
       mvw k;      /*Replicate the first word thru the remainder*/
    };
 #else
-   RPLW(y,m,j);   /*Fill *y with j for m*/
+   RPLW(y,m,ji);   /*Fill *y with ji for m*/
 #endif
 }
   
@@ -608,110 +546,38 @@ bno(){
   
 ieq(){
 /*O:Integer equals*/
-#ifdef A1000
-   asm{
-      dld *z;
-      jsb".DCO";
-      def *x;
-      jmp E;
-      jmp *+1;
-      cla;
-      jmp *ieq;
-E:    cca;
-   };
-#else
    RTN *lz== *lx;
-#endif
+
 }
   
 ine(){
 /*O:Integer not equals*/
-#ifdef A1000
-   asm{
-      dld *z;
-      jsb".DCO";
-      def *x;
-      jmp E;
-      jmp *+1;
-      cca;
-      jmp *ine;
-E:    cla;
-   };
-#else
    RTN *lz!= *lx;
-#endif
+
 }
   
 iln(){
 /*O:Integer less than*/
-#ifdef A1000
-   asm{
-      dld *z;
-      jsb".DCO";
-      def *x;
-      jmp *+2;
-      jmp E;
-      cla;
-      jmp *iln;
-E:    cca;
-   };
-#else
    RTN *lz<*lx;
-#endif
+
 }
   
 ile(){
 /*O:Integer less than or equal to*/
-#ifdef A1000
-   asm{
-      dld *z;
-      jsb".DCO";
-      def *x;
-      jmp E;
-      jmp E;
-      cla;
-      jmp *ile;
-E:    cca;
-   };
-#else
    RTN *lz<= *lx;
-#endif
+
 }
   
 ige(){
 /*O:Integer greater than or equal to*/
-#ifdef A1000
-   asm{
-      dld *z;
-      jsb".DCO";
-      def *x;
-      jmp *+2;
-      jmp E;
-      cca;
-      jmp *ige;
-E:    cla;
-   };
-#else
    RTN *lz>= *lx;
-#endif
+
 }
   
 ign(){
 /*O:Integer greater than*/
-#ifdef A1000
-   asm{
-      dld *z;
-      jsb".DCO";
-      def *x;
-      jmp E;
-      jmp E;
-      cca;
-      jmp *ign;
-E:    cla;
-   };
-#else
    RTN *lz>*lx;
-#endif
+
 }
   
 fne(){
@@ -849,7 +715,7 @@ F:    lda c;     /*Return the original value*/
 LP:while((char)bs!= *++cx); /*Keep going till found*/
    if(cx==cz){
       *cz=c;        /*Put back the char that was originally there*/
-      return;
+      return 0;
    }
    m=cx-cy;
    y[m>>L2BITS]|= bt0[m&(BITS-1)];  /*Set this bit on for a find*/
@@ -1096,17 +962,8 @@ rnk(){
       if(ix=1,xo=t0*(BPL/BPW),wset(),zo=t0*(iz=un!=1L)*(BPL/BPW),iz){
          if(ur!=wr)return RANKerr;
          m=wr*(BPL/BPW);
-#ifdef A1000
-         asm{
-            lda Ib0;
-            ldb Ib1;
-            cmw m;
-            jmp L;
-            jmp *+1;
-         };
-#else
        IFWRDSEQGO(Ib0,Ib1,m,L);
-#endif
+
          return LENGTHerr;
       }
 L:
@@ -1118,29 +975,21 @@ L:
    }
    else{
       RTNEON(mgn());   
-      j=sj1=vt==t0;
+      ji=sj1=vt==t0;
       if(wt!=(vt=t0)){
-         py= !ix?SCRATCH:sj1?(j=0,vp):Tep; 
-         RTNEON(cw());   
-      } 
-      if(ut!=vt){ 
-         py= !iz?SCRATCH+(BPL/BPW)*2:sj1&&j?vp:Tep;
-         j=wp==vp;
-         RTNEON(cu()); 
-         if(j)wp=vp;
+         py= !ix?SCRATCH:sj1?(ji=0,vp):Tep;
+         RTNEON(cw());
+      }
+      if(ut!=vt){
+         py= !iz?SCRATCH+(BPL/BPW)*2:sj1&&ji?vp:Tep;
+         ji=wp==vp;
+         RTNEON(cu());
+         if(ji)wp=vp;
       } 
       if(t0==BOO){
          m=1024,vn+=(BITS-1);
-#ifdef A1000
-         asm{ 
-            swp;
-            lsr 4;
-            swp;
-            dst vn; 
-         }; 
-#else
          vn>>=L2BITS;
-#endif
+
       } 
       else if(t0==INT)m=512;
       else m=256;
@@ -1323,78 +1172,29 @@ L:    jsb".TMPY";
   
 fadd(){
 /*O:Floating point addition of 2 F_P scalars*/
-#ifdef A1000
-   asm{
-      ext".TADD";
-      jsb".TADD";
-      def *y;
-      def *z;
-      def *x;
-   };
-#else
    *dy= *dz+*dx;
-#endif
+
 }
   
 fsub(){
 /*O:Floating point subtraction of 2 F_P scalars*/
-#ifdef A1000
-   asm{
-      ext".TSUB";
-      jsb".TSUB";
-      def *y;
-      def *z;
-      def *x;
-   };
-#else
    *dy= *dz-*dx;
-#endif
+
 }
   
 fmpy(){
 /*O:Floating point multiply of 2 F_P scalars*/
-#ifdef A1000
-   asm{
-      ext".TMPY";
-      jsb".TMPY";
-      def *y;
-      def *z;
-      def *x;
-   };
-#else
    *dy= *dz * *dx;
-#endif
+
 }
   
 fdiv(){
-#ifdef A1000
-   asm{
-      lda *z;
-      sta c;
-      jsb".TDIV";
-      def *y;
-      def *z;
-      def *x;
-      sosc;
-      jmp *fdiv;
-      lda *y;
-      sza,rss;
-      jmp *fdiv;
-      lda c;
-      ldb "=D11"; /*Domain error in case it doesn't work*/
-      sza;
-      stb ef;
-      jsb".CFER";
-      def *y;
-      def f3;     /* 0/0 is 1*/
-   };
-#else
    if(!*dz && !*dx) *dy = 1.0; /* 0/0 is 1 */
    else *dy= *dz / *dx;
    IFNOVFGO(OK);
       return DOMAINerr;
 OK:RTN NOERROR;
-#endif
+
 }
   
 scn(){
@@ -1427,5 +1227,4 @@ rm16(){
 }
 
 int (*sc1[])()={
-   fadd,fsub,fmpy,fmax,fmin,0,fdiv};
-
+   fadd,fsub,fmpy,fmx,fmn,0,fdiv};

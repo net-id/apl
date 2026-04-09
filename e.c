@@ -1,9 +1,14 @@
-#ifdef A1000
+/*
 HPC,NR,W,L,MC,"E,7 Execute                         <861216.1159>"
-;
-#endif
+This file contains the code for the execute function in the APL interpreter.
+The code is written in C17 and includes some assembly code for the A1000 architecture.
+The functions include iag (unstack index arguments), rst (reset stack pointer), and dbles (boolean less than or equal scan).
+The code also defines some constants and includes some header files.
+
+*/
 #include "ext"
 #include "qtmps"
+#include <stdio.h>
 extern (*Pm[])(),(*Pd[])(),(*Do[])(),mop(),ax(),rchk(),xw(),xu(),ty();
 extern cu(),gc(),mlt(),sdc();
 static p,j,j1,j2;
@@ -158,7 +163,7 @@ static set(){
    MMP(mi);                /*from it's Mentry*/
    MAP(ms->msp);           /*get to the values in the ws*/
    j2= ((struct vwst*)z)->vdim;   /*j2 is the number of lines in the procedure*/
-   ++((struct vwst*)z);    /*point to the 1st line of the procedure*/
+   z+=(sizeof(struct vwst)/BPW); /*point to the 1st line of the procedure*/
    MVW(z,Ib0,j2);          /*keep the lines in Ib0 for later stacking*/
    MMP(p);                 /*look at the mentry for the procedure*/
    MAP(py=ms->msp);        /*the procedure in the ws*/
@@ -318,6 +323,7 @@ EF_11:
       };
 #endif
 FIN:
+   fprintf(stderr,"DBG FIN lc=%d u=%d af=%d\n",(int)lc,(int)u,(int)af);
    mi=tv,mdc(),tv=0;
    if(!lc){
       rst();
@@ -328,7 +334,7 @@ FIN:
 S0:
       mi=u,mdc();
    }
-   if(0>lc)return 0;
+   if(0>lc){fprintf(stderr,"DBG ex ret0 at lc<0, lc=%d u=%d\n",(int)lc,(int)u);return 0;}
    plc= ++lc;
 BRN:                                   /*Branch token*/
    if(lc>=ml||1>lc){                   /*Is the line # out of range?*/
@@ -357,10 +363,14 @@ L1:
    if(bc&&!eci)            /*User has bit break and Qec is 0?*/
       return ATTNerr;
    mi=tv,tvp=pget();       /*Set tvp to point to the current token vector*/
+   fprintf(stderr,"DBG L1 tv=%d tvp=%p lc=%d tvp[-3]=%d tvp[-2]=%d tvp[-1]=%d\n",
+      (int)tv,(void*)tvp,(int)lc,(int)tvp[-3],(int)tvp[-2],(int)tvp[-1]);
    MAP(tvp-1L);                  /*How long is the token vector*/
    if(z[(d2= *z)-1]==LAT)d2-=2;   /*If the last token is a comment ignore it*/
    d1=z[2]==COT&&d2>1?2:0;       /*If there is a line label adj for it*/
    u=0;                          /*There is no result*/
+   fprintf(stderr,"DBG L1 d2=%d d1=%d tokens[0..2]=%d %d %d\n",(int)d2,(int)d1,
+      (d2>0?(int)*(tvp+0):-999),(d2>1?(int)*(tvp+1):-999),(d2>2?(int)*(tvp+2):-999));
 L2:
    if((d0=d1)==d2)goto FIN;      /*Finished an expression between diamonds*/
    if(u){                        /*Was there a result?*/
@@ -385,6 +395,7 @@ S1:
             drf();                  /*Get rid of the line that called it*/
          }while(lc>=0);             /*While we're still not at Imm Ex*/
       }
+      fprintf(stderr,"DBG ex ret0 naked branch\n");
       return 0;                     /*Go back to Immediate Execution*/
    }
    goto NEW_PHRASE;
@@ -507,7 +518,7 @@ I6:
          rst();            /*Reset out of this fn*/
          drf();            /*De refrence the line that called it*/
       }
-      if(!r)return 0;      /*If not with a fn then return to Imm Ex*/
+      if(!r){fprintf(stderr,"DBG ex ret0 BRT !r\n");return 0;} /*If not with a fn then return to Imm Ex*/
       plc=lc;              /*Hold onto the previous line counter for STOP*/
       MAP(up);             /*Get the value of the branch*/
 #ifdef JUSTC
@@ -565,7 +576,8 @@ SET:
       MMP(s);
       MAP(pz=ms->msp);
       j= ((struct vwst*)z)->vdim; /*A half reasonable way to get to the line length*/
-      if(0>(p= *(itype *)(++((struct vwst*)z)))){
+      z+=(sizeof(struct vwst)/BPW); /*advance past vwst header*/
+      if(0>(p= *z)){
          RTNEON(set());  
          goto BRN;
       }
@@ -652,9 +664,10 @@ MF:
    mi=w,mdc();       /*Decrement the old RHA*/
 E4:
    MAP(Ssp+=of);     /*Take the args off the stack*/
-   *z=v,v=0;         /*Put the result on the stack*/
+   *z=v,z[1]=DAT,v=0; /*Put the result on the stack, mark it DAT*/
    RTNEON(ef);       /*Return if there was an error*/
 E1:
+   fprintf(stderr,"DBG E1 *z=%d t=%d tt=%d lc=%d Ssp=%ld Sp=%ld\n",(int)*z,(int)t,(int)tt,(int)lc,(long)Ssp,(long)Sp);
    if(*z||t==TRC){   /*If there was a result or we're tracing*/
       e=0;
       if(tt)goto L9;
@@ -726,4 +739,3 @@ I4:
    af=1,Ssp=Sp;
    goto L2;
 }
-

@@ -1,22 +1,7 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"P0,7 p0     <840813.1333>"
-;
-extern reio(),len,Bsz;
-extern char *cx,Cb0[]; 
-static j0=0,j1=1,j=7;
-
-pout(){if(len)reio(2,02001,*(int[])cx,-len);}
-
-out(){if(len)reio(2,02001,*(int[])cx,-len);reio(2,02001,j,j0);}
-
-in(){reio(2,02001,j,j1);reio(1,02401,*(int[])Cb0,-Bsz);asm{stb len;};0;}
-
-off(){}
-
-#else
+/* HPC,NR,W,L,MC,"P0,7 p0     <840813.1333>" */
 #include <stdio.h>
 #include "ext"
-extern printf(),len,Bsz;
+extern len,Bsz;
 extern char *cx,Cb0[]; 
 static j0=0,j1=1,j=7;
 
@@ -32,7 +17,7 @@ out(){
 }
 
 in(){putchar('\7');
-    fgets(Cb0,Bsz,stdin);
+    if(!fgets(Cb0,Bsz,stdin)){putchar('\n');exit(0);}
     return !(len=strlen(Cb0)-1);
 }
 
@@ -49,7 +34,6 @@ shw(){
    else printf("Not INT or F_P\n");
    return NOERROR;
 }
-#endif
 #endif
 
 mout(){}

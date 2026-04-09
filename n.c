@@ -1,12 +1,6 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"N,7 Nils  (qfns)                    <861112.1701>"
-;
-#endif
+/* HPC,NR,W,L,MC,"N,7 Nils  (qfns)                    <861112.1701>" */
 #include "ext"
 #include "qtmps"
-#ifdef A1000
-#define v2() vc2()
-#endif
 extern qcr(),tok(),dtkn(),in(),shw(),xu(),xw(),fmve(),rpl(),pkw(),nnb();
 extern sind(),sgn(),sex(),qdbg(),mout(),pout(),chknm(),fll();
 extern x1,x2,x3,mbt(),qai(),qul(),qnums(),qnams(),qts(),qrun(),qdl();

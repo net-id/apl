@@ -3,7 +3,7 @@
 
 gents(){
    struct tm *now;
-   int loc;
+   time_t loc;
 
    time(&loc);           /*What is G.M.T.*/
    now=gmtime(&loc);  /*What is local time from that*/
@@ -17,8 +17,8 @@ gents(){
 }
 
 long timenow(){
-long currenttime;
+   time_t currenttime;
 
    time(&currenttime);
-   return currenttime;
+   return (long)currenttime;
 }

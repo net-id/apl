@@ -1,7 +1,4 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"P,7 Primitives                      <861113.1204>"
-;
-#endif
+/* HPC,NR,W,L,MC,"P,7 Primitives                      <861113.1204>" */
 #include "ext"
 #include "qtmps"
 #define DEV /*Used to allow adbg in development mode only*/

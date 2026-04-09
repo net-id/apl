@@ -1,7 +1,4 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"M2,7 Moves 2                         <861216.1321>"
-;
-#endif
+/* HPC,NR,W,L,MC,"M2,7 Moves 2                         <861216.1321>" */
 #include "ext"
 extern pxv(),pmv(),uex(),wex(),cuv(),cwv(),cu(),wmic(),klv();
 extern gcp(),gwp(),gbp(),frvb();

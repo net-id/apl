@@ -1,13 +1,5 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"Q1,7 Qfns 1                          <861216.1334>"
-;
-#define WSID 2048L
-#define v0() vc0()
-#define v2() vc2()
-extern v0(),v2();
-#else 
+/* HPC,NR,W,L,MC,"Q1,7 Qfns 1                          <861216.1334>" */
 #define WSID (RealScAd+1024)
-#endif
 #include "ext"
 extern x1,x2,x3,nr,c,mbt(),mvw(),xu(),xw(),mnl(),cuv(),cwv(),sind(),ty();
 extern ltc(),dtb(),chk(),hsh(),fll(),spv1(),nnb(),chgty(),gents();
@@ -161,7 +153,7 @@ static pop(){
 static push(){
    if(ut<ENC)return NOERROR;
    if(Ib>=(Ib0+(BSZ/BPW)))return NONCEerr;
-   *Ib=uo,*++Ib=wn,++Ib,wn=un,uo=up;
+   *Ib=uo,*++Ib=wn,++Ib,wn=un,uo=(long)up;
    RTN NOERROR;
 }
   

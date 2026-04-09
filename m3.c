@@ -1,7 +1,4 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"M3,7 Rep and Exp                     <861216.1322>"
-;
-#endif
+/* HPC,NR,W,L,MC,"M3,7 Rep and Exp                     <861216.1322>" */
 #include "ext"
 #include "qtmps"
 #ifdef A1000
@@ -166,7 +163,7 @@ L:
    if(j1)vn=n2;
    else vn=0L,n3=un;
    do{
-      uo=up,n0=n3;
+      uo=(long)up,n0=n3;
       do{
          MAP(uo);
          un= *lz;
@@ -198,7 +195,7 @@ expn(){
    pmv(),n3=(15&16-xo)*(wn=n2);
    ixl=j1?wn:0L;
    do{
-      uo=up,n0=un;
+      uo=(long)up,n0=un;
       do{
          MAP(uo);
          iz= *z,j1=1;          /*Start at the 1st bit in the word*/
@@ -206,7 +203,7 @@ expn(){
             if(j1&iz)gdata(),wo+=ixl;  /*Move if a 1 in bool*/
             vo+=wn;
          }while(j1*=2);       /*Move to the next bit in the word*/
-         ++((int*)uo);
+         uo+=BPW;
       }while(--n0);
       vo-=n3;
    }while(--n1);

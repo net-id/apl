@@ -5,7 +5,7 @@ extern long pget();
 extern long rp,up,vp,wp,un,vn,wn,uo,vo,wo,px,py,pz,n,n0,n1,n2,n3,is;
 extern long Lgp,Tep,Ssp,Sp,Tsp,Mtp,Stp,Grb,Mmp,Qrl,ixl,iyl,mxl,myl,tvp;
 #else
-extern long *pget();
+extern itype *pget();
 extern itype *Lgp,*Tep,*Ssp,*Sp,*Tsp,*Mtp,*Stp,*tvp;
 extern long Mmp,Grb,Qrl,ixl,iyl,mxl,myl;
 extern itype *rp,*up,*vp,*wp,*px,*py,*pz,*RealScAd;
@@ -54,5 +54,5 @@ extern struct{
 }    Regs0;
 #endif
 extern char *cx,*cy,*cz,*sa,Cb0[];
+extern double *dx,*dy,*dz;
 extern double fs,Qct,Qc1,Qc2,*Qcp;
-

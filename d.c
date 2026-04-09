@@ -1,14 +1,13 @@
-#ifdef A1000
-/* Do Not recompile. NEWD.MAC is now the correct version */
-HPC,NR,L,W,MC,"DAU,7 Defs and utilities <861022.1223>"
-;
-#endif
+/* Do Not recompile. NEWD.MAC is now the correct version
+   HPC,NR,L,W,MC,"DAU,7 Defs and utilities <861022.1223>" */
 #include "defs"
+#include <stdio.h>
   
 /*     Do not add/delete any vars up to st1!!!!!!!!!!!!     */
 /*     Requires a new clear ws if done and pkg old ws's     */
 
 itype *x,*y,*z;
+double *dx,*dy,*dz;   /* typed double views of x,y,z; updated by MAP/m1/m2/m3 */
 long *vrp;
 int ia[50],Bsz=BSZ;  /*Remember to change Cb0[] below*/
 #ifdef A1000
@@ -310,11 +309,11 @@ int n;{
 }
 #endif
   
-long pget(){
+itype *pget(){
 /*O:Return the address of the real data*/
 
    MMP(mi);
-   RTN (ms->mstr&255)*(BPL/BPW)+SWS+ms->msp;
+   RTN ms->msp + (ms->mstr&255)*(BPL/BPW) + SWS;
 }
   
 long nw(){
@@ -361,7 +360,7 @@ gr(){
    ms->msc=Nmi;            /*Make this mi point to the next available mi*/
    Nmi=mi;                 /*The next available mi is now 'mi'*/
 #ifdef JUSTC
-   (ws=ms->msp)->wsi=0;    /*Mark the ws entry as garbage*/
+   WSS(ms->msp)->wsi=0;    /*Mark the ws entry as garbage*/
    if(ws<Lgp)Lgp=ws;       /*Keep the lowest garbage pointer updated*/
 #else
    MAP(l2=ms->msp);        /*Get the start of the entry*/
@@ -393,11 +392,11 @@ gc(){
       Lgp+=n=(itype*)wsr-px;     /*New Lgp moved up the n valid words*/
       wmv();                     /*Shift the valid entries down*/
    }while(!mi);                  /*More garbage so go round again*/
-   (ws=Tep)->wsi=tmpmi;          /*Fix up the value we saved*/
+   WSS(Tep)->wsi=tmpmi;          /*Fix up the value we saved*/
    Tep=Lgp;                      /*This is now the new Tep*/
    Lgp=LGP;                      /*Set it very big*/
    Grb=0L;                       /*No more garbage*/
-   if(mi=r)rp=pget();            /*Reset the procedure pointer if in use*/
+   if(mi=r)rp=(long)pget();       /*Reset the procedure pointer if in use*/
    if((mi=w)>=Lmi)wp=pget();     /*Same for RHA*/
    if((mi=u)>=Lmi)up=pget();     /*     and LHA*/
    if((mi=v)>=Lmi)vp=pget();     /*     and result*/
@@ -405,11 +404,11 @@ gc(){
    tmpmi= *ia;                    /*Are there any index args active?*/
    while(tmpmi)                  /*Then reset their locations*/
       if(mi=ia[tmpmi--])         /*If it has a value (not jot)*/
-         ups[tmpmi]=pget();      /*Then record it's new ws location*/
+         ups[tmpmi]=(long)pget();/*Then record it's new ws location*/
 }
-  
+
 #else
-  
+
 gc(){
 /*O:Perform a garbage collection*/
    int tmpmi;
@@ -489,12 +488,12 @@ mdc(){
    int tmpmi,*l3;
    if(mi<0){            /*Only if it's a real mi*/
       MMP(mi);          /*Get the memory table entry*/
-      if(--ms->msc)return;    /*And if it's still referenced after -- return*/
+      if(--ms->msc)return 0; /*And if it's still referenced after -- return*/
       if(tmpmi=(ENC*256)>ms->mstr)  /*If it's not Enclosed then*/
          return gr();               /*Return after garbaging the entry*/
 L0:
       l4=(ms->mstr&255)*(BPL/BPW)+SWS-(BPE/BPW);   /*Start of enc string-1*/
-      (ws=l3=ms->msp)->wsi=tmpmi;   /*Set back ptr to the previous enc mi*/
+      WSS(l3=ms->msp)->wsi=tmpmi;   /*Set back ptr to the previous enc mi*/
       tmpmi=mi;               /*And hold onto the current enc mi to be deced*/
 L1:
       is=ws->wsl;                /*How long is the enc entry*/
@@ -520,11 +519,11 @@ L1:
       ms->msc=Nmi;            /*Make it point to next available mi*/
       Nmi=tmpmi;              /*Set this entry as the next available mi*/
       Grb+=is;                /*Update the amount of garbage*/
-      if(tmpmi=(ws=l3)->wsi){ /*Get the previous enc mi being dec'd*/
+      if(tmpmi=WSS(l3)->wsi){ /*Get the previous enc mi being dec'd*/
          ws->wsi=0;           /*Set it as garbage*/
          MMP(tmpmi);          /*Get the old partly dec'd enc mi back*/
          l4=lz[1];            /*Reset where we were up to*/
-         ws=l3=ms->msp;       /*Reset where it is in the ws*/
+         z=(itype*)(l3=ms->msp); /*Reset where it is in the ws*/
          goto L1;             /*Try to finish it off*/
       }
    }
@@ -539,7 +538,7 @@ mdc(){
    int tmpmi;
    if(mi<0){            /*Only if it's a real mi*/
       MMP(mi);          /*Get the memory table entry*/
-      if(--ms->msc)return;    /*And if it's still referenced after -- return*/
+      if(--ms->msc)return 0; /*And if it's still referenced after -- return*/
       if(tmpmi=(ENC*256)>ms->mstr) /*If it's not Enclosed then*/
          return gr();         /*Return after garbaging the entry*/
 L0:
@@ -629,7 +628,7 @@ ami(){
   
 #ifdef JUSTC
    int tli;
-   if((tli=Lmi-emi/(sizeof(struct msst)/BPA))>=0)  /*tli should be <0*/
+   if((tli=Lmi-emi/(sizeof(struct msst)/BPW))>=0)  /*tli should be <0*/
       return WSFULLerr;             /*No more mi's available*/
 #else
 /* if(32250>=Lmi-emi/4)return WSFULLerr;*/
@@ -666,9 +665,9 @@ asi(){
   
 #ifdef JUSTC
    int tli;
-   if((tli=Lsi+emi/(sizeof(struct ssst)/BPA))<0)   /*tli should be >0*/
+   if((tli=Lsi+emi/(32/BPW))<0)   /*tli should be >0*/
       return WSFULLerr;       /*Can't overflow symbol table values*/
-   l4=(int*)(Stp-Lsi*(sizeof(struct ssst)/BPA))-Ssp;     /*How much to move*/
+   l4=(int*)(Stp-Lsi*(32/BPW))-Ssp;     /*How much to move*/
 #else
 /*  if(Lsi+emi/16>32000)return WSFULLerr;*/
    asm{
@@ -729,12 +728,12 @@ mgn(){
       gc();                               /*Collect to give room*/
    }
    if(!(v=Nmi)){                          /*Is there another mi available?*/
-      emi=100*(sizeof(struct msst)/BPA);  /*Room for 100 new mi's*/
+      emi=100*(sizeof(struct msst)/BPW);  /*Room for 100 new mi's*/
       RTNEON(ami());                      /*Try to create them*/
       v=Nmi;                              /*This is the next available now*/
    }
 #ifdef JUSTC
-   (ws=Tep)->wsl=l3;    /*Length of ws entry*/
+   WSS(Tep)->wsl=l3;    /*Length of ws entry*/
 #else
    MAP(Tep);
    ws->wsl=l3;
@@ -753,6 +752,7 @@ mgn(){
    ms->msp=Tep;            /*Where did the data go in the ws*/
    Tep+=l3;                /*Update Tep to beyond the entry*/
    ms->mstr=vt*256+vr;     /*Put in the type and rank info*/
+   fprintf(stderr,"DBG mgn: v=%d vt=%d vr=%d vn=%ld mstr=%ld ms->msp=%p\n",(int)v,(int)vt,(int)vr,(long)vn,(long)ms->mstr,(void*)ms->msp);
    Nmi=ms->msc;            /*What is the next mi to be used*/
    ms->msc=1;              /*There is only 1 thing pointing to the entry*/
    RTN NOERROR;
@@ -783,4 +783,3 @@ fpa(){   /* Find physical Page Address for *z */
    };
 }
 #endif
-

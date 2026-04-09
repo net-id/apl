@@ -1,12 +1,7 @@
-#ifdef A1000
-HPC,NR,W,MC,L,"TH,7 Thorn                           <861216.1326>"
-;
-#endif
+/* HPC,NR,W,MC,L,"TH,7 Thorn                           <861216.1326>" */
 #include "ext"
 #include "qtmps"
-#ifdef A1000
-#define v0() vc0()  /* ON for VC+ */
-#endif
+#include <stdio.h>
 extern x1,x2,x3,mbt(),xw(),out(),v0(),wset(),mic(),wmic(),xu(),pout(),gc();
 extern luout,gtrlu(),newlu(),apctlw(),*bp,thenc(),pkw();
 extern long trd(),qoutf;
@@ -15,6 +10,9 @@ int nf,e0,e1,e5;
 double er;
 char ed[18];
 static j,j1,j2=2,j3,fw,pw,e2,e3,e4;
+static itype *jp;     /* j-as-itype-pointer (used in idtk) */
+static double *djp;   /* j-as-double-pointer (used in fdtk) */
+static char *e4p;     /* e4-as-char-pointer */
 static long ncr;                       /* No. of chars displayed per row */
   
 ot(){
@@ -28,7 +26,7 @@ ot(){
       pz+=len;
 #else
       MBT1(cx,cz=(char*)pz,len);
-      (char*)pz+=len;
+      pz=(itype*)((char*)pz+len);
 #endif
    }
 } 
@@ -67,15 +65,8 @@ btc(){
    do{
       if(!iz)iz=BITS,nf= *z,++z,++wp;
       *cy++='0'+(1&nf),*cy++=' ',--iz;
-#ifdef A1000
-      asm{
-         lda nf;
-         rar; 
-         sta nf;
-      };
-#else
        nf>>=1;
-#endif
+
    }
    while(--j);
 } 
@@ -83,40 +74,18 @@ btc(){
 ctc(){
 M:
    CZM; 
-#ifdef A1000
-   asm{ 
-      ldb cz; 
-      adb len;
-      stb e3; 
-      lbt;
-      sta e2; 
-      lda "=b77577";
-      ldb e3; 
-      sbt;
-      ldb cz; 
-      sfb;
-      jmp *+1;
-      inb;
-      stb e4; 
-      ldb e3; 
-      lda e2; 
-      sbt;
-      cpb e4; 
-      jmp O;
-   }; 
-#else
    e3=(int)(cz+len); /*Hold onto the last char and it's posn*/
    e2= *(char*)e3;
    *(char*)e3 = 127; /*CRLF*/
-   e4=cz;
-   while(127!=*(char*)e4++);
+   e4p=cz;
+   while(127!=*(char*)e4p++);
    *(char*)e3= e2;    /*Replace the character at the end*/
-   if(e3==e4-1)goto O;
-#endif
-   len=e4-(int)cz;
-   e4=0;
+   if((char*)e3==e4p-1)goto O;
+
+   len=e4p-cz;
+   e4p=0;
 O:  
-   (long)pz+=len; 
+   pz=(itype*)((char*)pz+len);
    MBT1(cz,cp,len); 
    j1=cp-cx;
    if(!e4){ 
@@ -126,7 +95,7 @@ O:
       cx=cp;
       if((len=pw)>n2)pw=len=n2; 
       if(len)goto M;
-      return; 
+      return 0;
    }
    len=(e4=len)+j1; 
    wn!=1||e4!=n2?out():(*g)();
@@ -165,21 +134,21 @@ ftd(){
    ftda(),ftdb(); 
 } 
 
-fc00(){ 
-   if(nf)*cz='@'; 
+fc00(){
+   if(nf)*cz='@';
    ++cz;
-   e4=ed; 
+   e4p=ed;
    if(0<e0){
-      MBT1(e4,cz,e0); 
-      cz+=e0; 
-      RTNEON(1>(e1-=e0)); 
-      e4+=e0,*cz++='.'; 
+      MBT1(e4p,cz,e0);
+      cz+=e0;
+      RTNEON(1>(e1-=e0));
+      e4p+=e0,*cz++='.';
    }
-   else { 
+   else {
       *cz++='0',*cz++='.';
-      while(e0++)*cz++='0'; 
-   }  
-   MBT1(e4,cz,e1);
+      while(e0++)*cz++='0';
+   }
+   MBT1(e4p,cz,e1);
    cz+=e1;
 } 
 
@@ -338,6 +307,7 @@ L:
 }
  
 shw(){
+   fprintf(stderr,"DBG shw() ut=%d DAT=%d FUN=%d luout=%d\n",(int)ut,DAT,FUN,(int)luout);
    if(j=ut,qoutf){
       if(j!=DAT)return NONCEerr;
       if(!bp){
@@ -345,9 +315,14 @@ shw(){
          RTNEON(apctlw());  
       }
    }
-   RTNEON(!luout);  
+   fprintf(stderr,"DBG shw A: qoutf=%ld\n",(long)qoutf);
+   RTNEON(!luout);
+   fprintf(stderr,"DBG shw B: j=%d DAT=%d\n",(int)j,DAT);
    if(j!=DAT)return len=3,cx="fun mop dop nil"+4*(j-FUN),out(),0;
-   if(w=u,xw(),!wn){
+   fprintf(stderr,"DBG shw before xw: u=%d w=%d\n",(int)u,(int)w);
+   w=u,xw();
+   fprintf(stderr,"DBG shw after xw: wp=%p wn=%ld wt=%d wr=%d\n",(void*)wp,(long)wn,(int)wt,(int)wr);
+   if(!wn){
 EMPTY:if(wr==1)len=0,out();
       return 0;
    }
@@ -406,34 +381,26 @@ bdtk(){
    do{
       if(!iz)iz=BITS,nf= *z,++z;
       *cx++='0'+(1&nf),*cx++=' ',--iz;
-#ifdef A1000
-      asm{
-         lda nf;
-         rar;
-         sta nf;
-      };
-#else
       nf>>=1;
-#endif
+
    }
    while(--j);
 } 
 
 idtk(){ 
-   cy=cz=Cb0+Bsz,j=lz,lz+=un; 
-   do is= *--lz,*--cz=' ',ltc(); 
-   while(lz!=j);
+   cy=cz=Cb0+Bsz,jp=lz,lz+=un;
+   do is= *--lz,*--cz=' ',ltc();
+   while(lz!=jp);
    MBT1(cz,cx,len=cy-cz); 
    cx+=len; 
 } 
 
 fdtk(){ 
-   ser(),j=dz+un,cz=cx-1; 
+   ser(),djp=dz+un,cz=cx-1;
    do{
-      if(ftd(),cz+=nf,e0+1>Qpp||e1-e0>Qpp+5)e5=e1,fc01(); 
-      else ++e0,fc00(); 
+      if(ftd(),cz+=nf,e0+1>Qpp||e1-e0>Qpp+5)e5=e1,fc01();
+      else ++e0,fc00();
    }
-   while(++dz!=j);
+   while(++dz!=djp);
    cx=cz+1; 
 } 
-

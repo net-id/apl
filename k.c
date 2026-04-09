@@ -1,11 +1,8 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"K,7 Check(del,tok,pack)             <861105.1646>"
-;
-#endif
+/* HPC,NR,W,L,MC,"K,7 Check(del,tok,pack)             <861105.1646>" */
 #include "ext"
 extern x1,x2,x3,mvw(),pmv(),gdata();
 extern mlt(),xu(),xw(),nwt(),ty(),fmve(),wmic(),sym(),svuse(),cuv();
-static int *uz;
+static long *uz;
 static j;
   
 pun(){

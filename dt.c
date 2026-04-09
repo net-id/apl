@@ -1,7 +1,3 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"DT,7 Data tables                     <860326.1258>"
-;
-#endif
 #include "defs"
   
 Qss=8;            /* Quad symbol size i.e. max name length */

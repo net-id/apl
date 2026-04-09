@@ -1,12 +1,10 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"S,7 Tok,Detok                       <861120.1742>"
-;
-#endif
+/* HPC,NR,W,L,MC,"S,7 Tok,Detok                       <861120.1742>" */
 #include "ext"
 #include "qtmps"
 #define AQN Mmp   /* Address of QuadNames */
 extern xu(),xw(),sind(),fll(),wmic(),sgn(),sdc(),sbl(),pun(),x1,x2,x3,mbt();
-extern char T1[],T2[],*ep;
+extern char T1[],T2[];
+extern int ep;
 extern Qss,Qsn,Qnn,Qfn,Qnt,ce,dtb(),cbteq();
 extern bdtk(),idtk(),fdtk(),nnb();
 int c;
@@ -17,45 +15,12 @@ qind(){
 L0:
    if(cbteq())goto TE;     /*Check sa with cz for sl to find name*/
 NX:cz+=Qss;                /*No match try next. All done in A reg*/
-#ifdef A1000
-   asm{
-      isz k;               /*Keep going while more*/
-      jmp L0;
-   };
-#else
   if(++k)goto L0;
-#endif
+
    return 0;               /*Didn't find it*/
-#ifdef A1000
-   asm{
-TE:                        /*found maybe*/
-      ldb sl;              /*Is the name given the longest possible?*/
-      cpb Qss;             /*i.e. it's Qss*/
-      jmp OK;              /*Yes it was so perfect match*/
-      ldb 0;               /*else A reg points at next character in table*/
-      lbt;                 /*Get the next character*/
-      and "=B337";         /*Is it a blank?*/
-      sza;                 /*Skip if it is a ' '*/
-      jmp NX;              /*Nope so try for another match*/
-OK:                        /*Found. Which one was it?*/
-      lda k;               /*Which one was it*/
-      ldb "=D110";         /* first ambivalent Quad fn token #  */
-      ada Qfn;             /* # of ambivalent Quad fns */
-      ssa,rss;             /*if in last Qfn entries then ambivalent */
-      jmp EN;
-      ldb "=D35";          /* first niladic Quad fn token  # */
-      ada Qnn;             /* # of niladic  Quad fns */
-      ssa,rss;             /* if in last Qfn+Qnn entries then niladic*/
-      jmp EN;
-      ldb "=D512";         /* FSI */
-      ada Qsn;             /* make A offset into system vars table */
-EN:
-      ada 1;               /* calculate token number */
-   };
-#else
 TE:if(sl!=Qss&&cz[sl]!=' ')goto NX;
    RTN (-k>(Qnn+Qfn))?(512-Qnt)+k:(-k>Qfn)?(35+Qnn+Qfn)+k:(110+Qfn)+k;
-#endif
+
 }
   
 static nf,j;
@@ -86,11 +51,12 @@ snam(){
 }
   
 dtok(){
-   if(px=wp,m1(),y=x+wn,c=j=0,*(ep=cx=Cb0)=' ',wn){
+   char *ep_p;
+   if(px=wp,m1(),y=x+wn,c=j=0,*(ep_p=cx=Cb0)=' ',wn){
       MBT1(cx,cx+1,Bsz-1);
       do{
          cy=cx;
-         if(ce&&!--ce) ep=cx-j;
+         if(ce&&!--ce) ep_p=cx-j;
          if(!(mi= *x))goto L0;
          if(0>mi){
             if(mi== -5){
@@ -131,17 +97,17 @@ P:
          } /*Trc=1,Stp=2*/
          else if(FSI>mi){
             CMP(AQN+(Qsn+Qnn)*Qss/BPA);
-            is=cx,sa=cz+(mi-110)*Qss,sbl();
-            if(is<cx-Qss)cx=is+Qss,*cx++=' ';
+            is=(long)cx,sa=cz+(mi-110)*Qss,sbl();
+            if((char*)is<cx-Qss)cx=(char*)is+Qss,*cx++=' ';
          }
          else snam();
          j=1;
 L:;
       }
       while(++x!=y);
-      if(*ep==' ')++ep;
+      if(*ep_p==' ')++ep_p;
    }
-   (int)ep=ep-Cb0;
+   ep=(int)(ep_p-Cb0);
    len=cx-Cb0-j;
 }
   
@@ -178,9 +144,9 @@ R:
    vt=CHA,*(vrp=Ib0)= --un;
    vr=2,vn=un*(vrp[1]=400);
    RTNEON(mgn());  
-   uo=up+un;
+   uo=(long)(up+un);
    fll();
-   wo=up,w=s,xw(),px=wp,m1(),cx=Cb0;
+   wo=(long)up,w=s,xw(),px=wp,m1(),cx=Cb0;
    if(*x!=QDQD)mi= *x,snam(),*(cx-1)='[';
    y=x+wn;
    if(ut==FUN){
@@ -199,14 +165,11 @@ R:
 L:
    CZM;
    MBT1(Cb0,cz,len);
-   if(++((int*)wo)==uo)return w=ef=0,dtb();
+   wo+=(BPW);
+   if((itype*)wo==(itype*)uo)return w=ef=0,dtb();
    MAP(wo);
    w= *z,xw(),dtok();
-#ifdef A1000
-   pz+=400;
-#else
-   ((char*)pz)+=400;
-#endif
+   pz=(itype*)((char*)pz+400);
    goto L;
 E:
    return mi=v= -7,mic(),NOERROR;
@@ -226,7 +189,7 @@ vdc(){
 #else
    while((itype *)un!=SCRATCH){
 #endif
-      MAP(--((itype *)un));
+      un-=BPW;MAP((itype*)un);
       if(0>(mi= *z))mdc();
       else if(mi>=FSI)sdc();
    }
@@ -244,21 +207,9 @@ L:
   
 static nnb1(){
    if(cx>=cy)return 0;
-#ifdef A1000
-   asm{
-      ldb cx;
-L:
-      lbt;
-      cpa "=D32";
-      jmp L;
-      adb "=D-1";
-      stb cx;
-      sta c;
-   };
-#else
    while(*cx++==' ');
    RTN c= *--cx;
-#endif
+
 }
   
 ctil(){
@@ -270,41 +221,13 @@ static ctio(){
 /*See also the file  Q0*/
   
    is=c-'0',n=0L;
-#ifdef A1000
-   asm{
-      ext ".DAD,.DMP";
-L:
-      ldb cx;
-      lbt;
-      stb cx;
-      sta c;
-      ldb T1;
-      adb 0;
-      ada "=D-48";
-      sta n+1;
-      lbt;
-      cpa "=D3";
-      jmp Y;
-      jmp N;
-Y:
-      dld d10;
-      jsb ".DMP";
-      def is;
-      soc;
-      jmp N;
-      jsb ".DAD";
-      def n;
-      dst is;
-      jmp L;
-   };
-#else
    while(3==T1[c= *cx++]){  /*While it is numeric*/
       is*=10;           /*Move the other units up*/
       IFOVFGO(N);       /*Check for overflow*/
       is+=c-'0';        /*Add on the new units*/
       IFOVFGO(N);       /*Check again for overflow*/
    }
-#endif
+
 N: return c;            /*The next char not used in the number*/
 }
   
@@ -319,7 +242,7 @@ static conv(){
   
 tok(){
    nf=0L,cy=(cx=Cb0)+len;
-   un=(itype)SCRATCH;
+   un=(long)SCRATCH;
    while(' '== *--cy);
    *++cy=' ',cy[1]='K';
    if(nnb1()){
@@ -403,31 +326,14 @@ E0:
             }
             conv(),++cx,ctil(),--cx,f1=nf?0.1:10.0;
             if(is){
-#ifdef A1000
-               asm{
-ML:
-                  pcal ".TMPY,3,2,0";
-                  def fs;
-                  def fs;
-                  def f1;
-               };
-#else
 ML:            fs*=f1;
-#endif
+
                IFNOVFGO(OK);
                if(ef0)fs= -fs;
                goto P;
 OK:
-#ifdef A1000
-               asm{
-                  ext ".DDS";
-                  pcal ".DDS,1,2,0";
-                  def is;
-                  jmp ML;
-               };
-#else
                if(--is)goto ML;
-#endif
+
             }
 P:
             MAP(VC);
@@ -485,14 +391,14 @@ CV:
             CMP(vp);
             MBT1(cx,cz,vn+1); 
             MAP(un);
-            *z=LAT,z[1]=v,(itype *)un+=2L;
+            *z=LAT,z[1]=v,un+=2*BPW;
             goto L3;
          default:
 NT0:
             ++cx;
 NT:
             MAP(un);
-            *z=v,++((itype *)un);
+            *z=v,un+=BPW;
          }
       }
       while(nnb1());
@@ -507,4 +413,3 @@ E:
    }
    return pun()?SYNTAXerr:NOERROR;
 }
-

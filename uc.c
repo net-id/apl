@@ -1,7 +1,4 @@
-#ifdef A1000
-HPC,NR,W,L,"UC,7 Utilities in Code               <861216.1339>"
-;
-#endif
+/* HPC,NR,W,L,"UC,7 Utilities in Code               <861216.1339>" */
 #include "ext"
 #ifndef APOLLO
 #include <string.h>
@@ -82,15 +79,15 @@ dtb(){
    px=wp+ix/BPW,xo=ix&(BPW-1),py=wp+iy/BPW; 
    yo=iy&(BPW-1);
 #else
-   (char*)px=(char*)wp+ix; /*Src char posn*/
-   (char*)py=(char*)wp+iy; /*Dest char posn*/
+   px=(itype*)((char*)wp+ix); /*Src char posn*/
+   py=(itype*)((char*)wp+iy); /*Dest char posn*/
    yo=xo=0;                /*No character offsets*/
 #endif
    --n,f=mtxt,v2();   
 SK: 
    MAP(wp-=(BPL+sizeof(struct vwst))/BPW);
    n=(*lz-=is);                 /*How much garbage did we regain*/
-   ++((struct vwst*)z),*lz=iy;  /*Adjust the length of 2nd dim*/
+   z+=(sizeof(struct vwst)/BPW),*lz=iy; /*Adjust the length of 2nd dim*/
    if(wn)pz=wp+n,gr1(); 
    RTN NOERROR;
 } 

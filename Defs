@@ -1,15 +1,15 @@
 #define JUSTC
 #ifdef JUSTC
 typedef int  itype;     /*The native addressing mode and natural word type*/
-#define MAP(p) z= (itype*)(p)
+#define MAP(p) z=(itype*)(p),dz=(double*)z
 #define CMP(p) cz=(char*)(p)
 #define CZM    CMP(pz)
 #define MMP(i) z=(itype*)((struct msst*)Mtp+(i)) /*Mtp is pointer to struct MI*/
 #define RTNEON(val) {int returnvalue; if(returnvalue=(val))return returnvalue;}
-#define SMP(i) z=(itype*)(Stp-i*32)  /*Stp is pointer to struct SI*/
-#define m1() x=px
-#define m2() x=px,y=py
-#define m3() x=px,y=py,z=pz
+#define SMP(i) z=(itype*)(Stp-i*(32/BPW))  /*Stp is pointer to struct SI*/
+#define m1() x=px,dx=(double*)x
+#define m2() x=px,y=py,dx=(double*)x,dy=(double*)y
+#define m3() x=px,y=py,z=pz,dx=(double*)x,dy=(double*)y,dz=(double*)z
 #define v0i() ef0=NOERROR,z=(itype*)pz,m0=n0,(*f0)()
 #define vc0 v0i
 #define v0() starf0()
@@ -38,12 +38,12 @@ typedef int  itype;     /*The native addressing mode and natural word type*/
 #define BITS (8*sizeof(itype))  /*32*/
 #define BPA 1                 /*natural byte addressing resolution*/
 #define BPW (sizeof(itype))     /*4*/
-#define BPL (sizeof(long))    /*4*/
+#define BPL (sizeof(itype))   /*4 - workspace dims stored as itype, not C long*/
 #define BPF (sizeof(double))  /*8*/
-struct msst {long *msp,mstr,msc;};
-struct vwst {long wsl;itype wsi;long vdim;};
-struct wsst {long wsl;itype wsi;};
-struct ssst {long ssl;itype ssi;long ssc;};
+struct msst {itype *msp; long mstr,msc;};
+struct vwst {itype wsl;itype wsi;itype vdim;};  /* sizeof=12, SWS-like=3 on arm64 */
+struct wsst {itype wsl;itype wsi;};   /* sizeof=8, SWS=2 on arm64 */
+struct ssst {itype ssl;itype ssi;itype ssc;}; /* sizeof=12, name=20B in 32B slot */
 #define IFOVFGO(LAB)  /*Assume nothing overflows*/
 #define IFNOVFGO(LAB) goto LAB /*Assume nothing overflows*/ 
 #define gdata() (*g)()
@@ -112,12 +112,15 @@ struct ssst {ssl,ssi,ssc;};
 #define L2BITS 5             /*Log Base 2 of BITS*/
 #endif
 extern itype *x,*y,*z;
-#define lx ((long*)x)
-#define ly ((long*)y)
-#define lz ((long*)z)
-#define dx ((double*)x)
-#define dy ((double*)y)
-#define dz ((double*)z)
+#define lx x
+#define ly y
+#define lz z
+/* WSS(p): set z to p (cast to itype*) and return (struct wsst*)z as rvalue.
+   Replaces the GCC lvalue-cast pattern  (ws = ptr)->field = val  which
+   Clang rejects.  Use:  WSS(ptr)->field = val;                          */
+#define WSS(p) (z=(itype*)(p),(struct wsst*)z)
+/* dx, dy, dz are global double* variables declared in d.c / ext */
+extern double *dx,*dy,*dz;
 #define ms ((struct msst *)z)
 #define ws ((struct wsst *)z)
 #define ss ((struct ssst *)z)
@@ -129,7 +132,7 @@ extern itype *x,*y,*z;
 #define FSI 512   /*First Symbol Index*/
 #define MAXLONG 2147483647L   /*Largest +tve long*/
 #define MAXLONGD 2147483647.0   /*Largest +tve long as a real */
-#define LGP MAXLONG
+#define LGP ((itype*)MAXLONG)
 #define BSZ 512  /*Size of Cb0*/
 #define DAT 2
 #define FUN 3
@@ -157,4 +160,3 @@ extern itype *x,*y,*z;
 #define UNT 18
 #define DET 19
 #include "aplerrno.h"
-

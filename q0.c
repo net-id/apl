@@ -1,10 +1,4 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"Q0,7 Qfns 0                          <861216.1334>"
-;
-#define v2() vc2()
-#define v3() vc3()
-extern v3(),v2();
-#endif
+/* HPC,NR,W,L,MC,"Q0,7 Qfns 0                          <861216.1334>" */
 #include "ext"
 extern cif(),cuv(),cwv(),fll(),mvw(),xu(),xw(),cu(),pmv(),rpl();
 extern x1,x2,x3,nr,vcp(),ipo();
@@ -140,74 +134,27 @@ dtop(){
    do{
       up-=(BPF/BPW);  /*The next last elm of lha working backwards*/
       MAP(up);
-#ifdef A1000
-      asm{
-         ext ".CFER,.DDE,.TDIV,.TMPY,.TSUB,.TFXD,.TFTD";
-         pcal ".CFER,2,2,0";
-         def f2;     /*Keep the value in f2*/
-         def *z;
-         pcal ".TDIV,3,2,0";
-         def f3;     /*Put it's inverse in f3*/
-         def f1;     /*This is a 1.0*/
-         def f2;
-      };
-#else
       f3=f1/(f2= *dz);
-#endif
+
       is=wn;         /*How many elms in rha to divide*/
       do{
          wp-=(BPF/BPW);     /*The last floor result or RHA elm*/
          MAP(wp);
-#ifdef A1000
-         asm{
-            pcal ".TMPY,3,2,0";
-            def fs;  /*Divide the floor or rha elm by lha elm*/
-            def *z;
-            def f3;
-            pcal ".TFXD,1,2,0";
-            def fs;  /*Try to floor it*/
-            sosc;
-            jmp OK;  /*OK was 32 bits*/
-         };
-#else
          tlong=f3* *dz;
          IFNOVFGO(OK);
-#endif
+
          ffl();      /*Do a floating point floor of it*/
          fs=f9;      /*Put the answer back into fs from ffl()*/
          goto GO;
-#ifdef A1000
-         asm{
-OK:         ssa;        /*Dont decrement it if it's positive*/
-            jsb ".DDE"; /*Decrement the - value to do round DOWN*/
-            pcal ".TFTD,1,2,0";
-            def fs;     /*Make it a float again*/
-GO:         pcal ".TMPY,3,2,0";
-            def f4;     /*Multiply it back up*/
-            def fs;
-            def f2;
-            pcal ".TSUB,3,2,0";
-            def *z;     /*Subtract the multiple and leave the remainder in */
-            def *z;     /*the result area*/
-            def f4;
-         };
-#else
 OK:      if(tlong<0)--tlong;
          fs=tlong;
 GO:      *dz-=fs*f2;
-#endif
+
          if(un>n3){  /*I think this stops writing the very last result??*/
             vp-=(BPF/BPW);
             MAP(vp); /*At the next result area put in the multiple*/
-#ifdef A1000
-            asm{
-               pcal ".CFER,2,2,0";
-               def *z;     /*The multiple (fs) will be used for the next div*/
-               def fs;
-            };
-#else
             *dz=fs;
-#endif
+
          }
       }
       while(--is);   /*Till done one set of RHA*/
@@ -272,7 +219,7 @@ qdbg(){
    }
    MAP(vp);
    lz[5]=(BPW*(9+wa())+sizeof(struct msst)*(vn-94)+sizeof(struct ssst)*(vr-12));   /*How many free bytes are there*/
-   lz[2]=Ssp,lz[3]=Tep,lz[4]=Grb,*lz=vn,lz[1]=vr;
+   lz[2]=(itype)Ssp,lz[3]=(itype)Tep,lz[4]=(itype)Grb,*lz=(itype)vn,lz[1]=(itype)vr;
    RTN NOERROR;
 }
   
@@ -304,18 +251,8 @@ nnb1(){
 /*P:cy points to the array to be scanned*/
 /*R:cy now points at the next non-blank and the char is also in 'c'*/
   
-#ifdef A1000
-   asm{
-      ldb cy;
-L:    lbt;
-      cpa "=D32";
-      jmp L;
-      stb cy;
-      sta c;
-   };
-#else
    while(' '==(c= *cy++));
-#endif
+
 }
   
 static ctio(){
@@ -447,48 +384,21 @@ E:
       cticy();
       f2=nf?0.1:10.0;
       if(is){
-#ifdef A1000
-         asm{
-ML:
-            pcal ".TMPY,3,2,0";
-            def fs;
-            def fs;
-            def f2;
-            sosc;
-            jmp OK;
-         };
-#else
 ML:   fs*=f2;
       IFNOVFGO(OK);
-#endif
+
          if(ef0)fs= -fs;
          goto EC;
 OK:
-#ifdef A1000
-         asm{
-            ext ".DDS";
-            pcal ".DDS,1,2,0";
-            def is;
-            jmp ML;
-         };
-#else
          if(--is)goto ML;
-#endif
+
       }
 EC:
       if(c==' ')goto P;
    default:;
 NN:
-#ifdef A1000
-      asm{
-         lda "=D8224";
-         ldb cy;
-         sfb;
-         stb cy;
-      };
-#else
       while(' '== *cy++);
-#endif
+
       if(cy>ey)goto RM;
       bs=is=fs=0;
 P:

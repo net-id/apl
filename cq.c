@@ -1,11 +1,12 @@
-#ifdef A1000
+/*
 HPC,NR,W,L,"CQ,7 Circle and Query functions...RHO<861216.1330>"
-;
-#define v0() vc0()
-#define v2() vc2()
-#define v3() vc3()
-extern v0(),v2(),v3(),dwsmy();
-#endif
+This file contains the code for the circle and query functions in the APL interpreter. 
+The code is written in C17 and includes some assembly code for the A1000 architecture.
+The functions include mcir (monadic circle), dcir (dyadic circle), deal2 (alternative algorithm for dyadic query),
+rsqrl (reset the random link), and mque (monadic query).
+The code also defines some constants and includes some header files.
+
+*/
 #include "ext"
 #include "qtmps"
 extern cuv(),cw(),iot();

@@ -1,7 +1,4 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"RS,7 Red,Scan,Opo,Ipo                <861216.1324>"
-;
-#endif
+/* HPC,NR,W,L,MC,"RS,7 Red,Scan,Opo,Ipo                <861216.1324>" */
 #include "ext"
 #include "qtmps"
 #ifdef A1000
@@ -23,6 +20,7 @@ static long p0,p1,p2,p3;
 static itype *p0,*p1,*p2,*p3;
 #endif
 static c,c0,c1,j,j0,j1,j2;
+static int (*fj)();  /* saved function pointer (j=f / f=j pattern) */
 static id[]={
    -1,-2,-2,-1,-1,-2,-1,-2,DOMAINerr,DOMAINerr,-2,-2,-1,0,0,-2,-1,-1,DOMAINerr};
 /* w_ or u_ =,~=,<,<=,>=,>,^,or,nand,nor,+,-,times,max,min,|,divide,*,log*/
@@ -34,7 +32,7 @@ L:
    if(vt=j=w_>9)  /*Result is boolean if using bool type fn*/
 F:    j2=256,zo=(vt=F_P)*(BPL/BPW);
    else if(u&&(ut||wt)&&6>w_){   /*Inner product and */
-      if((int)g=ut==CHA){
+      if(j=ut==CHA){
          if(w_&&w_!=1)return DOMAINerr;
          j2=2048,vt=CHA,g=w_?&sne:&seq;
       }
@@ -80,7 +78,7 @@ F:    j2=256,zo=(vt=F_P)*(BPL/BPW);
       n1=n2;
       if(u_){
          if(j^(u_>9))return NONCEerr;
-         j=f,f0=df0[u_],n7+=n6*(n0=un/=n3);
+         fj=f,f0=df0[u_],n7+=n6*(n0=un/=n3);
       }
    }
    vrp=Ib;  /*Restore vrp from before*/
@@ -294,7 +292,7 @@ L:
    }
    do{
       px=p0,py=p1,n=n6,wmv(); /*Copy src p0 to the result p1 for n6 words*/
-      if(c)px=p0,py=n7,n=n6,wmv();
+      if(c)px=p0,py=(itype*)n7,n=n6,wmv();
       n0=n3;
       while(--n0){   /*# elm in axis in question*/
          p2=c?n7:p1;
@@ -460,6 +458,6 @@ ipo(){
    if(vt)n2=n1;
    else n2=((BITS-1)+n1)/BITS;
    n2*=n0,wp+=(wo=n1*xo)*(uo=n7=n3-1),op1(),p0=vp,p2=Tep+n5;
-   while(n7)p3=p2,uo= --n7,n0=un,wp-=wo,op1(),f=f0,xyz(),f=j;
+   while(n7)p3=p2,uo= --n7,n0=un,wp-=wo,op1(),f=f0,xyz(),f=fj;
    RTN rm16();
 }

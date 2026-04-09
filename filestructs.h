@@ -87,8 +87,9 @@ extern msfo;
    asm{sta 1;cla;ext ".LBP,.DAD";jsb ".DAD";def Fcbp;jsb ".LBP";}\
    asm{stb z;stb dcb;stb afcb;}
 #else
-#define STDR(lv,cx,len) asm{lda len;ldb cx;dst lv;}
-#define MAPFCB(afi) z=dcb=Fcbp+afi
+/* STDR: on Unix we don't use HP string descriptors; file ops use Unix I/O */
+#define STDR(lv,cx,len) ((void)0)
+#define MAPFCB(afi) z=(itype*)(dcb=(struct dcbst*)(afcb=(struct afcbst*)(Fcbp+(afi))))
 #endif
 #define LKAC opc=1,hr=fac,cnc=-1,ef=lkres()
 #define UNAC opc=0,hr=fac,cnc=-1,   lkres()

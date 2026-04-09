@@ -1,7 +1,4 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"FD,7 Function Definition Utils ATW/RHO<861216.1336>"
-;
-#endif
+/* HPC,NR,W,L,MC,"FD,7 Function Definition Utils ATW/RHO<861216.1336>" */
 #include "ext"
 #include "qtmps"
   

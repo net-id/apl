@@ -1,7 +1,4 @@
-#ifdef A1000
-HPC,NR,W,L,"FMTP,7 FMT Lha Parser                  <861216.1328>" 
-; 
-#endif
+/* HPC,NR,W,L,"FMTP,7 FMT Lha Parser                  <861216.1328>"  */
 #include "ext"
 #ifdef A1000
 #define v2() vc2()  /* ON for VC+ */

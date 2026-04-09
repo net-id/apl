@@ -1,7 +1,4 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"O,7 Operators                       <861216.1325>"
-;
-#endif
+/* HPC,NR,W,L,MC,"O,7 Operators                       <861216.1325>" */
 #include "ext"
 #include "qtmps"
 extern mat(),fmve();

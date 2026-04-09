@@ -1,7 +1,4 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"IND,7 Indexing                        <861216.1340>" 
-; 
-#endif
+/* HPC,NR,W,L,MC,"IND,7 Indexing                        <861216.1340>"  */
 #include "ext"
 #ifdef A1000
 #define v0() vc0()  /* ON for VC+ */
@@ -101,7 +98,7 @@ static fivb(){
    k=m,i=yo;
    do {
       int *tmpptr;
-      xo=(BITS-1)&(int)(pz=wo+*lx++);
+      xo=(BITS-1)&(int)(pz=(itype*)(wo+*lx++));
       tmpptr=(int*)((int)pz/BITS);
 #ifdef JUSTC
       if(rf){
@@ -158,7 +155,7 @@ static viv3(){
 #ifndef JUSTC
    m=mm;
 #endif
-   n=wn,wo=wp+wpe*(wo-Qio),v2();
+   n=wn,wo=(long)(wp+wpe*(wo-Qio)),v2();
 }
   
 static vivc(){
@@ -169,7 +166,7 @@ static vivc(){
 #ifdef A1000
    wo=BPW*wp+wo-Qio,v2();
 #else
-   wo=(char*)wp+wo-Qio,v2();
+   wo=(long)((char*)wp+wo-Qio),v2();
 #endif
 }
   
@@ -186,7 +183,7 @@ static vivb(){
 }
   
 static piv(){
-   up=ups[*ia-1];
+   up=(itype*)ups[*ia-1];
 #ifndef JUSTC
    mm=512,mx=1024;
 #endif
@@ -273,7 +270,7 @@ static ind1(){
             wn=un;
          }
       }
-      vnt*=Ib2[--wr]=un,ups[wr]=up;
+      vnt*=Ib2[--wr]=un,ups[wr]=(long)up;
    }while(wr);
    RTN NOERROR;
 }
@@ -326,7 +323,7 @@ static ind2(){
       if(rf){
          MVW1(Ib3,Ib1,m=vrt*(BPL/BPW));
          l=ixl,ixl=iyl,iyl=l;
-         l=(long)wp,wp=vp,(long)vp=l;
+         {itype *tmp=wp; wp=vp; vp=tmp;} l=0;
          ptd= &wo,pts= &vo;
       }
       if(cse==2)Ib0[i]*=wn,Ib2[i]*=wn,pxv();
@@ -456,4 +453,3 @@ COPY:
    rf=v=0;                       /*No result as such???*/
    RTN ef;
 }
-

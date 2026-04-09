@@ -1,7 +1,4 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"SV,7 Shared Variables                <861216.1341>"
-;
-#endif
+/* HPC,NR,W,L,MC,"SV,7 Shared Variables                <861216.1341>" */
 #include "ext"
 extern char T1[],*ep,*endx;
 extern svp(),fpa(),mnl(),gc(),cuv(),sgn(),x1,x2,x3,mbt();
@@ -26,8 +23,8 @@ svgn(){
   
 svcl(){
    SMP(mi);
-   cnc= *z,*z=Nsi,Nsi=mi,mi=ss->ssi,(itype)z=ms->msc;
-   SMP((itype)z);
+   cnc= *z,*z=Nsi,Nsi=mi,mi=ss->ssi;
+   {long _msc=ms->msc; SMP(_msc);}
    ss->ssi=mi;
 } 
 
@@ -158,16 +155,8 @@ mqsvr(){
    u=v,xu(),v=vo=wo=0L;
    while(nr--){
       CMP(wp+wo/BPW);
-#ifdef A1000
-      asm{
-         lda wo+1;
-         sla;
-         inb;
-         stb cy;
-      };
-#else
       cy=cz;
-#endif
+
       MBT1(cy,sa=Cb0,sl);
       if(st=sind()){
          SMP(st);
@@ -224,41 +213,16 @@ mqsv_(){/* qsvc==158 and qsvs */
    opc=(s==158)+27,vo=wo=0L;
    while(nr--){
       CMP(wp+wo/BPW);
-#ifdef A1000
-      asm{
-         lda wo+1;
-         sla;
-         inb;
-         stb cy;
-      };
-#else
       cy=cz;
-#endif
+
       MBT1(cy,sa=Cb0,sl);
       if(trsv()){
          RTNEON(svp());
          MAP(vp+vo/(BITS/4));
-#ifdef A1000
-         asm{
-            ldb cnc;
-            lda vo+1;
-            and "=d3";
-            cma;
-            jmp L1;
-L0:
-            blf;
-L1:
-            ina,sza;
-            jmp L0;
-            lda *z;
-            ior 1;
-            sta *z;
-         };
-#else
          k=vo&(BITS/4)-1;
          while(k--)cnc<<4;    /*Move the bits into position*/
          *z|=cnc;             /*Collect the bits in the result*/
-#endif
+
       }
       ++vo,wo+=sl;
    }
@@ -281,63 +245,20 @@ dqsvc(){
    opc=29,vo=uo=wo=0L;
    while(nr--){
       CMP(wp+wo/2);
-#ifdef A1000
-      asm{
-         lda wo+1;
-         sla;
-         inb;
-         stb cy;
-      };
-#else
       cy=cz;
-#endif
+
       MBT1(cy,sa=Cb0,sl);
       if(trsv()){
          if(ur){
             MAP(up+uo/(BITS/4));
-#ifdef A1000
-            asm{
-               ldb *1;
-               lda uo+1;
-               and "=d3";
-               sza,rss;
-               jmp L5;
-               ada "=d-4";
-L4:
-               blf;
-               ina,sza;
-               jmp L4;
-L5:
-               lda 1;
-               and "=d15";
-               sta hrb;
-            };
-#else
             printf("4 bit manipulation reqd\n");
-#endif
+
          }
          else hrb=ut;
          RTNEON(svp());
          MAP(vp+vo/4);
-#ifdef A1000
-         asm{ 
-            ldb cnc;
-            lda vo+1; 
-            and "=d3";
-            cma;
-            jmp L1; 
-L0: 
-            blf;
-L1: 
-            ina,sza;
-            jmp L0; 
-            lda *z; 
-            ior 1;
-            sta *z; 
-         }; 
-#else
 printf("dsfsdffs in sv\n");
-#endif
+
       } 
       ++vo,++uo,wo+=sl; 
    }

@@ -1,23 +1,20 @@
-#ifdef A1000
+/*
 HPC,NR,W,L,"DTH,7 Dyadic Thorn                    <861216.1326>"
-; 
-#endif
+This file contains the code for the dyadic thorn functions in the APL interpreter.
+The code is written in C17 and includes some assembly code for the A1000 architecture.
+The functions include mnr (monadic minimum reduce), mpr (monadic product reduce),
+fb01 (find boolean 0 or 1), and dtho (dyadic thorn).
+The code also defines some constants and includes some header files.
+
+*/
 #include "ext"
-#ifdef A1000
-#define v1() vc1()  /* ON for VC+ */
-#define v2() vc2()  /* ON for VC+ */
-extern v1(),v2(),v0i();
-#endif
+
 extern x1,x2,x3,bt0[],mbt(),cu(),xw(),out(),pmv(),vwm(),klv();
 extern e0,nf,ifw(),fll(),fw,qm,lrt,c,ndl,ndr,mm,elts,sQpp,rpf,iflg; 
 extern pfmt(),edf(),fmtif(),fmte(),cQpp(),flcol(),fovfl(),ovfl(),ovfcl(); 
 extern char *cp,*endx,*ovfp,sub[];
 static j1,(*f0n)(); 
-#ifdef A1000
-static long hun,swp,l5,l6,l7,l8;  
-#else
 static long hun,*swp,l5,l6,l7,l8;  
-#endif
 static double f1; 
 
 deifw(){
@@ -149,4 +146,3 @@ dtho(){
 E:
    RTN Qpp=sQpp,ef;
 }
-

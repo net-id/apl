@@ -1,12 +1,12 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"CLR,7 Clearws                          <860825.1043>"
-;
-#include  /a900/ext
-#include /a900/qtmps
-#else
+/*HPC,NR,W,L,MC,"CLR,7 Clearws                          <860825.1043>"
+        This file contains the code for the clrws function, which is used to establish a new clear.ws::system. 
+        The code is written in C17 and includes some assembly code for the A1000 architecture. 
+        The function initializes various system variables and sets up the workspace for the APL interpreter. 
+        It also defines some constants and includes some header files.  
+*/
 #include  "ext"
 #include "qtmps"
-#endif
+
 #define LSI 550L     /*Leaves about 12 free*/
 #ifdef A1000
 #define LMI 65400L   /*Leaves about 94 free*/
@@ -150,17 +150,17 @@ static dual2[13]={QDQD,AST,QD0,LPT,QDG,QDA,RPT,QDF,QDG,QDW,DIT,BRT,-2};
 static dual3[6]={QDQD,AST,QD0,QDF,QDG,QDW};
   
 clrws(){/*This routine is used to establish a new clear.ws::system*/
- Grb=0L,Lgp=(itype)LGP,Mmp=((long)RealScAd)+WsSize+Qnt*Qss/BPA;
-Stp=Mmp+(FSI-1L)*(32/BPA); /*Symbol Table Pointer*/
+ Grb=0L,Lgp=LGP,Mmp=((long)RealScAd)+WsSize+Qnt*Qss/BPA;
+Stp=(itype*)(Mmp+(FSI-1L)*(32/BPA)); /*Symbol Table Pointer*/
 /* Tep is now just after the wsid and time stamp */
  Tep=RealScAd+(BSCRATCH+sizeof(CLRVS)+BPW-1)/BPW; /*Length of 'CLEAR WS' message*/
 /* we have 100K EMA so Mmp is 100K - space for Qname table */
- Mtp=Stp-LSI*(32/BPA)
+ Mtp=Stp-LSI*(32/BPW)
 #ifdef A1000
--65536L*(sizeof(struct msst)/BPA) 
+-65536L*(sizeof(struct msst)/BPA)
 #endif
 ;
- Sp=Ssp=Tsp=Mtp+LMI*(sizeof(struct msst)/BPA),Lmi=LMI,Lsi=LSI;
+ Sp=Ssp=Tsp=Mtp+LMI*(sizeof(struct msst)/BPW),Lmi=LMI,Lsi=LSI;
  eci=tmi=r=rt=rs=tv=0,lc= -1;
 Qio=1;
 Qpp=10;
@@ -202,7 +202,7 @@ vr= -Qnt*Qss; /* amounts to copy */
   vt=INT,mgn();MAP(vp);*lz=Qpw;mgn();MAP(vp);*lz=Qpp;mgn();MAP(vp);*lz=Qrl;
   vt=CHA,vr=1,vn=256,mgn();CMP(vp);m=256;
   MBT(Av,cz,m);
-  px=Mmp;m1();
+  px=(itype*)Mmp;m1();
  mi=0,sl=Qss,sa=(char*)x;
 do sgn(),ss->ssi=Qsi[mi],sa+=sl;
    while(++mi!=Qsn);
@@ -211,7 +211,7 @@ do sgn(),ss->ssi=0,sa+=sl;
    while(++mi!=Asn); Svi=FSI+Qsn;
 vt=CHA,vr=1,vn=2,mgn();
 CMP(vp);
-MBT(cz,"LA",2);
+MBT("LA",cz,2);
 vt=INT,vr=0,vn=1;
 mgn();MAP(vp);*lz=3;
 mgn();MAP(vp);*lz=5;
@@ -241,4 +241,3 @@ vn=4,mgn();MAP(vp);*lz=lz[1]= -1L,lz[2]=0L,lz[3]=1;/*-38 for Quad ps*/
 vn=6,vt=CHA,mgn();CMP(vp);cx=".,PPF@";MBT(cx,cz,vr=6);/* for Quad fc */
 vr=0,vn=1L,vt=F_P,mgn();MAP(vp);*dz=Qct;
 v=0;}
-

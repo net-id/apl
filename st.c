@@ -1,8 +1,4 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"ST,7 Stop/Trace....RHO                 <861216.1334>"
-; 
-extern gdata();
-#endif
+/* HPC,NR,W,L,MC,"ST,7 Stop/Trace....RHO                 <861216.1334>" */
 #include "ext"
 extern x1,x2,x3,nr,c,xu(),xw(),mvw(),mnl(),cuv(),sind(),ty(),chk(); 
 extern vtow(),pmv(),chgv(),svp(),svclr(); 

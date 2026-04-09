@@ -1,7 +1,4 @@
-#ifdef A1000
-HPC,NR,L,W,MC,"U,7 Utilities                       <861111.1625>"
-;
-#endif
+/* HPC,NR,L,W,MC,"U,7 Utilities                       <861111.1625>" */
 #include "ext"
 #include "qtmps"
 #define SVPERR -32768
@@ -63,40 +60,6 @@ static fb01(){
 /*  m0 is the maximum number of bits to scan*/
 /*R:zo is the bit offset at which the change occurs*/
 
-#ifdef A1000
-   asm{
-      ldb z;         /*Get both A and B registers pointing to z*/
-      lda 1;
-      cma,ina;       /*Negate the address and keep it in zo*/
-      sta zo;
-      adb"=D1024";   /*As we can do 1024 words then keep the 1024th word*/
-      stb z;         /*in k temporarily and replace the 1024th by bs*/
-      lda *1;
-      sta k;
-      lda bs;        /*bs is either all 1s or 0s ( -1 or 0)*/
-      sta *1;
-      adb"=D-1025";  /*Back to the start and one position early as*/
-      cma,cce,sla;   /*we increment first. E reg = ~bs;A reg is set so that*/
-      cme;           /*we look for the complement bit values*/
-L:
-      inb;           /*Look at the next word*/
-      cpa *1;        /*Is it = to ~bs i.e. no change?*/
-      jmp L;         /*No change so try the next word*/
-      lda *1;        /*Found:Get the actual word*/
-      sez;           /*Complement A only if looking for 1s*/
-      cma;
-      adb zo;        /*This addition gives the word offset*/
-      blf;           /*and then multiplies it by 16 to give bit offset*/
-      jmp *+2;       /*Start to add on the bit within word position*/
-L1:
-      inb;           /*Increment the count while the */
-      sla,rar;       /*lowest bit is off*/
-      jmp L1;
-      stb zo;        /*Place the bit position count into zo*/
-      lda k;         /*Replace the original 1024th word*/
-      sta *z;
-   };
-#else
    int *zz,zv;
    register int *za;
 
@@ -109,7 +72,7 @@ L1:
    if(bs)zv= ~zv;            /*If looking for 1's ~ it to count leading 0's*/
    while(zv&1) ++zo,zv>>=1;  /*Count how many low order bits are on*/
    *zz=k;                    /*Replace the original word*/
-#endif
+
    ef0=zo<m0;        /*Set ef0 to indicate if we found a transition*/
 }
   
@@ -225,34 +188,12 @@ xw(){
 /*  is put into *Ib0. Returns wn*/
    MMP(w);           /*Get the Mtable entry for the left arg*/
    wp=SWS+ms->msp;   /*Set wp to point past the header of the ws entry*/
-#ifdef A1000
-   asm{
-      ldb z;         /*Get the address of the type/rank info in the Mtable*/
-      adb"=D2";      /*entry (2 words into the entry)*/
-      lda *1;        /*Take this type/rank info*/
-      alf,alf;       /*and split out the top 8 bits to put into the type*/
-      and"=D255";    /*(wt) var*/
-      sta wt;
-      lda *1;        /*Now take the same info and keep the rank in wr*/
-      and"=D255";
-      sta wr;
-      sza;           /*and use this to determine if a call to trd is needed*/
-      jmp L;
-   };
-#else
    wt=ms->mstr>>8;
    if(!(wr=(char)(ms->mstr)))
-#endif
+
       return wn=1L;     /*Set wn and return if scalar*/
-#ifdef A1000
-   asm{
-L:    sta m0;        /*If an array then set m0 as the number of dimensions*/
-      cle,ela;       /*Double this for words to move into Ib0*/
-      sta m;
-   };
-#else
    m=m0=wr;
-#endif
+
    MAP(wp);          /*Get the ws entry*/
    MVW(z,Ib0,m);     /*and move the dimensions into Ib0 for later use*/
    wp+=m,wn=trd();   /*Increment wp to point to the data. Calc and return*/
@@ -264,34 +205,12 @@ xu(){
 /*See xw() above for explanation*/
    MMP(u);
    up=SWS+ms->msp;
-#ifdef A1000
-   asm{
-      ldb z;
-      adb"=D2";
-      lda *1;
-      alf,alf;
-      and"=D255";
-      sta ut;
-      lda *1;
-      and"=D255";
-      sta ur;
-      sza;
-      jmp L;
-   }
-#else
    ut=ms->mstr>>8;
    if(!(ur=(char)(ms->mstr)))
-#endif
+
       return un=1L;
-#ifdef A1000
-   asm{
-L;    sta m0;
-      cle,ela;
-      sta m;
-   };
-#else
    m=m0=ur;
-#endif
+
    MAP(up);
    MVW(z,Ib1,m);
    up+=m,un=trd();
@@ -305,19 +224,9 @@ ty(){
 /*  the syntactic class of the mi*/
 /*R:Return mi's syntactic type. Looks at 2nd mi if SV*/
 
-#ifdef A1000
-   asm{
-L:    lda mi;              /*Get mi*/
-      ssa;                 /*and if it is an Mentry (negative)*/
-      jmp L2;              /*goto L2 to determine further*/
-      and "=B77000";       /*Keep the bits that could make mi > 511*/
-      sza,rss;
-      jmp L1;              /*goto L1 if it's less than 512*/
-   };
-#else
 L: if(mi<0)goto L2;
    if(mi< FSI)goto L1;
-#endif
+
    SMP(mi);                /*It's a SV so go to the next level down*/
    if(mi=ss->ssi)goto L;   /*and if the mi here has a value start again*/
    return DAT;             /*Otherwise return data as the result*/
@@ -333,16 +242,8 @@ L2:
    MMP(mi);             /*Get the Mtable value and look at the type/rank*/
 /*If the type is less than 10 then return data*/
    if((256*ENC)>(j=ms->mstr))return DAT;
-#ifdef A1000
-   asm{
-      lda j;            /*Get the type from the Mtable and shift it into*/
-      alf,alf;          /*the low 8 bits*/
-      and"=D255";       /*Discard the rank and keep the type only*/
-      ada"=D-8";        /*Subtracting 8 will now give the appropriate type*/
-   };                   /*and this is now returned as the result*/
-#else
    return (j>>8)-8;     /*Return function type*/
-#endif
+
 }
   
 cget(){
@@ -385,28 +286,19 @@ wget(){
    switch(wt){       /*depending on the type of the RHA*/
    case INT:
       is= *lz;        /*set is (integer scalar) if it's int*/
-      return;
+      return 0;
    case F_P:
       fs= *dz;        /*set fs (floating scalar) if it's float*/
-      return;
+      return 0;
    case CHA:
-#ifdef A1000
-      asm{
-         lda *z;     /*get both bytes into A and B*/
-         ldb 0;
-         blf,blf;    /*Swap the bytes in B so that the rotate will*/
-         rrl 8;      /*put both upper bytes into B*/
-         stb bs;     /*and then into bs*/
-      };
-#else
       bs= *(char*)z;
       bs|=bs<<8;     /*Double the character into 16bits*/
       bs|=bs<<16;    /*Double again to 32 bits*/
-#endif
-      return;
+
+      return 0;
    case ENC:
       bs= *z;         /*bs is the ENC value*/
-      return;
+      return 0;
    }
    bs=1&*z?-1:0;     /*bs (boolean scalar) is all on/off depending on*/
 }                    /*the first bit in *z */
@@ -422,19 +314,19 @@ uget(){
    switch(ut){
    case INT:
       MAP(up+uo*(BPL/BPW));  /*Get to the integer offset into up*/
-      is= *lz,lz= &is;       /*is is the integer scalar and lz points to it*/
-      return;
+      is= *lz,z=(itype*)&is; /*is is the integer scalar and lz(=z) points to it*/
+      return 0;
    case F_P:
       MAP(up+uo*(BPF/BPW));  /*Get to the floating point offset into up*/
-      fs= *dz,dz= &fs;       /*fs is the float and dz points to it*/
-      return;
+      fs= *dz,dz= &fs,z=(itype*)dz; /*fs is the float and dz points to it*/
+      return 0;
    case ENC:
       MAP(up+uo);        /*Get to the enclosed offset into up*/
       bs= *z;            /*bs is the enclosed value*/
-      return;
+      return 0;
    case CHA:
       cget();           /*Get the offset character into duplicated into bs*/
-      return;
+      return 0;
    }
    MAP(up+uo/BITS);              /*Get to the offset boolean in up*/
    bs= *z&bt0[(int)uo&(BITS-1)]?-1:0;  /*bs is -1 or 0 according to that bit*/
@@ -484,15 +376,6 @@ char *cbts(){
 /*  x3 is the # of bytes to compare*/
 /*R:Returns 0 if x1 string is <= x2 string else return non zero*/
 
-#ifdef A1000
-   asm{
-      lda x1;        /*The first sting pointer*/
-      ldb x2;        /*The second string pointer*/
-      cbt x3;        /*Compare for x3 bytes*/
-      jmp *+1;
-      cla;           /*Return 0 if the strings are = or the first<second*/
-   };
-#else
    register char *cx1,*cx2;
    register int cnt;
 
@@ -502,7 +385,7 @@ char *cbts(){
       if(*++cx1!= *++cx2)return (*cx1< *cx2)?(char*)0:cx1;
    }
    return (char)0;        /*Both strings the same*/
-#endif
+
 }
       
 #ifdef JUSTC
@@ -526,16 +409,6 @@ cbteq(){
 /*  sl characters are matched*/
 /*R:Return non zero if = only*/
 
-#ifdef A1000
-   asm{
-      lda cz;        /*The first string*/
-      ldb sa;        /*to the second string*/
-      cbt sl;        /*for sl bytes*/
-      jmp *+3;       /*return if = */
-      jmp *+1;
-      cla;           /*Return 0 if != */
-   };
-#else
    register char *cx1,*cx2;
    register int cnt;
 
@@ -545,7 +418,7 @@ cbteq(){
       if(*++cx1!= *++cx2)break;
    }
    return !cnt;        /*Both strings the same if cnt is 0*/
-#endif
+
 }
   
 hsh(){
@@ -556,15 +429,8 @@ hsh(){
 /*A:Uses the first character as an index into Ht*/
 /*R:*z is returned as to the 1st si of the relevant hashed list in Ht*/
 
-#ifdef A1000
-   asm{
-      ldb sa;     /*From sa */
-      lbt;        /*get the first character*/
-      sta c;      /*and put it into c*/
-   };
-#else
    c= *sa;         /*Get the first character from sa*/
-#endif
+
 /*z points to Ht indexed by either the character position in the alphabet*/
 /*or if it's overstruck then it's in the 26 positions past 27 else if it's a*/
 /*Quad name then it's in 54. All else (delta,alpha etc) are in 26*/
@@ -622,35 +488,13 @@ sind(){
 /*  Returns si*/
 
    hsh();            /*Start at the hashed list header*/
-#ifdef A1000
-   asm{
-L:    lda *z;        /*get the next si in the list*/
-      sta si;        /*and put it into si to trace down the list*/
-      sza,rss;       /*if there arn't any that follow (i.e. 0)*/
-      jmp E;         /*then return. z points at the last si in the list*/
-   };
-#else
    do{
       if(!(si= *z))goto E;
-#endif
+
       SMP(si);          /*look at the next Stable entry*/
       cz=(char*)z+sizeof(struct ssst);    /* *cz is the name of this symbol with trailing blanks*/
-#ifdef A1000
-      asm{
-         lda sa;        /*Look at the name in question*/
-         ldb cz;        /*and the name of this Stable entry*/
-         cbt sl;        /*see if they are a perfect match for all sl chars*/
-         jmp *+3;       /*Yes match so check further*/
-         jmp L;         /*don't match so try next si in chain*/
-         jmp L;         /*don't match so try next si in chain*/
-         lbt;           /*get the next character from the Stable*/
-         cpa bl;        /*and make sure it's a blank*/
-         jmp E;         /*OK found a perfect match so return*/
-         jmp L;         /*nope it was an abbreviation so try the next*/
-      }
-#else
    }while(!cbteq()||' '!=cz[sl]);
-#endif
+
 E:   RTN si;               /*Return the si if found or 0 if not*/
 }
   
@@ -933,4 +777,3 @@ EN:
    copc;                                        /*Return the result*/
 }
 #endif
-

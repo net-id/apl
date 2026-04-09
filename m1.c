@@ -1,7 +1,4 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"M1,7 Moves 1                         <861216.1320>"
-;
-#endif
+/* HPC,NR,W,L,MC,"M1,7 Moves 1                         <861216.1320>" */
 #include "ext"
 extern wmic(),cw(),ci(),pmv(),pxv(),wget(),fll(),rpl(),ty(),xu(),xw(),dcom();
 extern klv();
@@ -31,12 +28,12 @@ mgt(){
    if(0<=(u= *z))     /*Can't disclose a primitive or symbol*/
 DOMER:return u=0,DOMAINerr;
    if(xu(),u=0,(vr=ur)+wr>MAXRANK)return RANKerr;
-   vn=un*wn,vt=ut,vrp=Ib0,j=ur*(BPL/BPW),ly=Ib0+wr,uo=wp+wn;
+   vn=un*wn,vt=ut,vrp=Ib0,j=ur*(BPL/BPW),ly=Ib0+wr,uo=(long)(wp+wn);
    MVW(Ib1,y,j);
 #ifdef A1000
    while(--uo)!=wp){
 #else
-   while(--((itype*)uo)!=wp){
+   while((uo-=BPW),(itype*)uo!=wp){
 #endif
       MAP(uo);
       if(0<=(mi=u= *z))goto DOMER;   /*Domain error if not an mi*/
@@ -54,7 +51,7 @@ L:   if(ut!=vt){           /*Try to keep the 'highest' type*/
    }
    vr+=wr;
    RTNEON(mgn());  
-   up=(uo=wp)+wn,u=w,pmv();   /*Get ready to copy into the new result*/
+   uo=(long)wp,up=wp+wn,u=w,pmv(); /*Get ready to copy into the new result*/
    do{
       MAP(uo);
       if(w= *z,xw(),wt==vt)(*g)();   /*Copy in if already the right type*/
@@ -64,7 +61,7 @@ L:   if(ut!=vt){           /*Try to keep the 'highest' type*/
 #ifdef A1000
    while(++uo)!=up);
 #else
-   while(++((itype*)uo)!=up);
+   while((uo+=BPW),(itype*)uo!=up);
 #endif
    mi=u,mdc();                      /*Kill the old right arg*/
    return u=w=0;

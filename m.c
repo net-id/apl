@@ -1,7 +1,4 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"M,7 Move F Utilities                <861111.1316>"
-;
-#endif
+/* HPC,NR,W,L,MC,"M,7 Move F Utilities                <861111.1316>" */
 #include "ext"
 extern rf;
 static mm,c,j1,j,j2,j0;
@@ -9,46 +6,22 @@ extern long nw();
   
 static fxvf(){
 /*O:Move F.P. values with skip factors*/
-#ifdef A1000
-   asm{
-      ext"DVMOV";
-      jsb"DVMOV";
-      def *+6;
-      def *x;
-      def ixl+1;
-      def *y;
-      def iyl+1;
-      def m;
-   };
-#else
    do{
       *dy= *dx;
       dy+=iyl;
       dx+=ixl;
    }while(--m);
-#endif
+
 }
   
 static fxvi(){
 /*O:Move longs with skip factors*/
-#ifdef A1000
-   asm{
-      ext" VMOV";
-      jsb" VMOV";
-      def *+6;
-      def *x;
-      def ixl+1;
-      def *y;
-      def iyl+1;
-      def m;
-   };
-#else
    do{
       *ly= *lx;
       ly+=iyl;
       lx+=ixl;
    }while(--m);
-#endif
+
 }
   
 static fxve(){
@@ -94,37 +67,6 @@ static fxvb(){
 /*O:Move booleans with skip*/
    k= -m,j1=xo,j=yo;
   
-#ifdef A1000
-   asm{
-L:    lda bt0;
-      ldb 0;
-      ada j1;
-      adb j;
-      tbs"A,I X,I";
-      jmp set;
-      cbs"B,I Y,I";
-      jmp L0;
-set:  sbs"B,I Y,I";
-L0:   lda j1;
-      ada ixl+1;
-      clb;
-      lsl 12;
-      adb x;
-      stb x;
-      alf;
-      sta j1;
-      lda j;
-      ada iyl+1;
-      clb;
-      lsl 12;
-      adb y;
-      stb y;
-      alf;
-      sta j;
-      isz k;
-      jmp L;
-   };
-#else
    do{
       if(*x&bt0[j1]) *y|=bt0[j];    /*Turn it on*/
       else *y&=~bt0[j];
@@ -133,7 +75,7 @@ L0:   lda j1;
       y+=(j +=iyl)/BITS;   /*Next word of relevance*/
       j &=(BITS-1);        /*Bit within word*/
    }while(++k);
-#endif
+
    yo=(int)(myl=m*iyl+yo)&(BITS-1),myl/=BITS;
    xo=(int)(mxl=m*ixl+xo)&(BITS-1),mxl/=BITS;
 }
@@ -232,19 +174,8 @@ fmve(){
   
 fmvc(){
 /*O:Move consecutively stord chars*/
-#ifdef A1000
-   asm{
-      lda x;
-      ral;
-      ada xo;
-      ldb y;
-      rbl;
-      adb yo;
-      mbt m;
-   };
-#else
    MBT((char*)x+xo,(char*)y+yo,m);
-#endif
+
    my=(yo+=m)/BPA,yo&=(BPA-1);
    mx=(xo+=m)/BPA,xo&=(BPA-1);
 }
@@ -260,50 +191,9 @@ static fmvb(){
 #endif
    else if(j0=ix)ix+=BITS;
    j2=bt1[(BITS-1)&(k=m+yo)];
-#ifdef A1000
-   asm{
-      lda k;
-      clb;
-      rrl 12;
-      stb k;
-   };
-#else
    k/=BITS;
-#endif
+
    j=y[k]&~j2;
-#ifdef A1000
-   asm{
-      lda k;
-      cma;
-      sta k;               /*-(#words+1) to do*/
-      lda ix;              /*#to rotate by*/
-      ada"=B101100";       /*Octal value for RRR 0 instruction*/
-      sta L0;              /*MODIFY CODE ouch . Naughty... But it's quick*/
-      sta L1;
-      lda j0;              /*Get the 1st word from the string*/
-      ldb *x;              /*And the second one*/
-L0:
-      dec 0;               /*This word is replaced by the RRR ix instruction*/
-      ldb j1;              /*Mask of bits not to touch in 1st word*/
-      cmb;                 /*Mask of bits to touch in 1st word*/
-      and 1;               /*Keep just these bits from the rotate*/
-      ior c;               /*Plus the original rest of 1st word*/
-      jmp E;               /*Check for finished*/
-L:
-      sta *y;              /*Put the word away*/
-      isz y;               /*Increment the result address*/
-      dld *x;              /*Get the next src to be rotated*/
-L1:
-      dec 0;               /*Rotate upto 16 bits at a time. SELF MODIFYING*/
-      isz x;               /*Increment the src address*/
-E:
-      isz k;               /*More words to do?*/
-      jmp L;               /*Round again*/
-      and j2;              /*Just keep bits needed from last word*/
-      ior j;               /*Include the unmodified bits from end word*/
-      sta *y;              /*Put the last word into the result*/
-   };
-#else
    j0=(unsigned)j0>>ix;
    j0|= *x<<(BITS-ix);
    j0=c|(j0&~j1);             /*Just keep the right bits at the beginning*/
@@ -314,7 +204,7 @@ E:
       j0|= *++x<<(BITS-ix);    /*Combine with bits from second word*/
    }
    *y=j|(j2&j0);              /*Put in last word*/
-#endif
+
    my=(yo+=m)/BITS,yo&=BITS-1;
    mx=(xo+=m)/BITS,xo&=BITS-1;
 }
@@ -328,7 +218,7 @@ gcp(){
 #ifdef A1000
    px=wp+wo/BPA,py=vp+vo/BPA,n=wn,m=mm;
 #else
-   (char*)px=(char*)wp+wo/BPA,(char*)py=(char*)vp+vo/BPA,n=wn,m=mm;
+   px=(itype*)((char*)wp+wo/BPA),py=(itype*)((char*)vp+vo/BPA),n=wn,m=mm;
 #endif
 }
   
@@ -337,7 +227,7 @@ gbp(){
 #ifdef A1000
    px=wp+wo/BITS,py=vp+vo/BITS,n=wn,m=mm;
 #else
-   (itype*)px=wp+wo/BITS,(itype*)py=vp+vo/BITS,n=wn,m=mm;
+   px=wp+wo/BITS,py=vp+vo/BITS,n=wn,m=mm;
 #endif
 }
   

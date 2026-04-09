@@ -1,14 +1,10 @@
-#ifdef A1000
-HPC,W,MC,L,"F3,7 Disk file operations aux 2      <861216.1334>"
-;
-extern FmpClose();
-#endif
+/* HPC,W,MC,L,"F3,7 Disk file operations aux 2      <861216.1334>" */
 #include "ext"
 #include "qtmps"
 #include "aplerrno.h"
 #include "filestructs.h"
   
-extern gc(),mvw(),x1,x2,x3,wmv(),snam(),sl,sgn(),mbt(),fll(),funt();
+extern gc(),mvw(),x1,x2,x3,wmva(),snam(),sl,sgn(),mbt(),fll(),funt();
 extern ami(),asi(),lkres(),cnc,opc,msfo,sclass,tsktyp,shr;
 extern long emi,hr,Qnp;
 static long indx;
@@ -28,16 +24,16 @@ static gr1(){
 encout(){/* Uses u produces vpp and n */
    long kssp,nl,esp,src,lep,stv;
    int cmi,csi,vtr,vv;
-   kssp=Ssp,cmi=csi=ef=0,gc(),v=u;
+   kssp=(long)Ssp,cmi=csi=ef=0,gc(),v=u;
    MAP(pz=vpp=Tep);
-   *lz=indx=5L,gr1(),emi=nl=esp=SCRATCH;
+   *lz=indx=5L,gr1(),emi=nl=esp=(long)SCRATCH;
 LP:
    indx=0L,Ssp-=3L;
    if(-7>v){/*m entry*/
       MMP(v);
-      src=ms->msp,vtr=ms->mstr;
-      if(vpp>src){
-         MAP(src);
+      src=(long)ms->msp,vtr=ms->mstr;
+      if(vpp>(itype*)src){
+         MAP((itype*)src);
          ++cmi,indx=ws->wsl;
       }
       if(indx>Ssp-Tep){
@@ -47,17 +43,17 @@ WSFL:
       }
       if(indx){
          if(vtr/256>=ENC){
-            MAP(esp);
-            if((esp+=3L)>(BSCRATCH/BPW)-6) goto WSFL;
-            *lz=nl,z[2]=vv;
-            lep=SWS+(vtr&255)*2+Tep;
+            MAP((itype*)esp);
+            if((esp+=3L)>(long)(SCRATCH+(BSCRATCH/BPW)-6)) goto WSFL;
+            *lz=(itype)nl,z[2]=vv;
+            lep=(long)(SWS+(vtr&255)*2+Tep);
             vv=v;
             nl=indx-(SWS+(vtr&255)*2);
          }
-         stv=vtr,px=src,py=Tep,n=indx,wmv();
+         stv=vtr,px=(itype*)src,py=Tep,n=indx,wmv();
          MMP(v);
          ms->msp=Tep;
-         MAP(pz=src);
+         MAP(pz=(itype*)src);
          gr1();
       }
       else stv=src-(long)vpp,v=0;      /*dup mi*/
@@ -65,7 +61,7 @@ WSFL:
    else if(v>=FSI){              /*si*/
       src=emi;
       while(src){
-         MAP(src);
+         MAP((itype*)src);
          if(ws->wsi==v){
             stv=src-(long)Ssp,v=0;
             goto TWS;
@@ -73,7 +69,7 @@ WSFL:
          src=ws->wsl;
       }
       ++csi,cx=Cb0+6,mi=v,snam(),*((int*)Ib0+(x3=SW+sl/BPW))=sl,indx=1+x3;
-      stv=emi,emi=Ssp;
+      stv=emi,emi=(long)Ssp;
 TWS:
       if(indx>Ssp-Tep) goto WSFL;
       if(indx){
@@ -91,20 +87,20 @@ TWS:
    *lz=stv,z[2]=v;
 BB:
    if(nl) {
-      MAP(lep+--nl);
+      MAP((itype*)(lep+--nl));
       v= *z;
       goto LP;
    }
-   if((esp-=3L)>=SCRATCH){
-      MAP(esp);
+   if((esp-=3L)>=(long)SCRATCH){
+      MAP((itype*)esp);
       nl= *lz,vv=z[2];
       MMP(vv);
-      lep=ms->msp+(SWS+(ms->mstr&255)*2);
+      lep=(long)(ms->msp+(SWS+(ms->mstr&255)*2));
       goto BB;
    }
    px=Ssp,py=Tep,n=indx=kssp-(long)Ssp,wmv();
 ERR:
-   n=indx+Tep-vpp,Ssp=kssp,v=0;
+   n=indx+Tep-vpp,Ssp=(itype*)kssp,v=0;
    MAP(vpp+SW);
    *z=cmi,*++z=csi;
    RTN ef;
@@ -140,7 +136,7 @@ encin(){
    }
 /**No errors are allowed from here on**/
    MMP(vv);
-   src=SW+vl+(vpp= *lz),esp=SCRATCH-3L,nl=0L;
+   vpp=(itype*)*lz,src=(long)(SW+vl+vpp),esp=(long)SCRATCH-3L,nl=0L;
    MAP(vpp);
    Tep=vpp+(*lz=5L),mi=vv,mdc();
    goto STRT;
@@ -162,7 +158,7 @@ STRT:
          ms->msp=Tep,Tep+=vl,ms->mstr=vtr,Nmi=ms->msc,ms->msc=1;
          if(vtr/256>=ENC) if(un=vl-(SWS+(vtr&255)*2)){
             MAP(esp+=3L); 
-            *lz=nl,z[2]=vv,nl=un,vv=mi,lep=Tep+2L+(vtr&255)*2-vl; 
+            *lz=(itype)nl,z[2]=vv,nl=un,vv=mi,lep=(long)(Tep+2L+(vtr&255)*2-vl);
             MAP(lep+nl);
             goto AA;
          }
@@ -198,7 +194,7 @@ CC:
       MAP(esp);
       mi=vv,nl= *lz,vv=z[2],esp-=3L;
       MMP(vv);
-      lep=ms->msp+2+(ms->mstr&255)*2;
+      lep=(long)(ms->msp+2+(ms->mstr&255)*2);
       goto BB;
    }
    v=vv;
@@ -216,7 +212,7 @@ static cnums(){
    int f2d,cnt;   /*Temps of the # of files to do and the count*/
    f2d=msfo;      /*How many files to try*/
    cnt=0;         /*Count from 0*/
-   MAP(px=Qnp);
+   MAP(px=(itype*)Qnp);
    while(f2d) if(lz[--f2d]) ++cnt;
    *(vrp=Ib0)=vn=cnt;   /*Setup the results*/
    RTN cnt;
@@ -285,7 +281,7 @@ qavl(){
 off(){
 /*O:Sign off from APL - Shut down files and shares*/
   
-   px=Qnp,py=(BSCRATCH/BPW)-(afi=msfo)*2,m2();
+   px=(itype*)Qnp,py=(itype*)((BSCRATCH/BPW)-(afi=msfo)*2),m2();
    wr= -1;
    do{
       if(lx[--afi]){

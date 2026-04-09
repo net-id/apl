@@ -1,11 +1,4 @@
-#ifdef A1000
-HPC,NR,W,L,"PK,7 Package Functions               <861216.1328>"
-;
-#define v0() vc0()
-#define v1() vc1()
-#define v2() vc2()
-extern vc0(),vc1(),vc2();
-#endif
+/* HPC,NR,W,L,"PK,7 Package Functions               <861216.1328>" */
 #include "ext"
 #include "qtmps"
   
@@ -297,7 +290,7 @@ mppdf(){
 #ifdef A1000
    pz=vp*2L;                           /* pz is character address of result*/
 #else
-   (char*)pz=(char*)vp;                /* pz is character address of result*/
+   pz=vp;                              /* pz is character address of result*/
 #endif
    flg=1,ef=mpdf(),flg=0;              /* Set flag for ppdef and use mdpf  */
    RTN dtb();                          /* Delete Trailing Blanks from name */
@@ -555,4 +548,3 @@ pins(){
    py=vp+wn;                           /* and set to append inserted objects*/
    RTN expng();                        /* left arg after this by expunge */
 }
-

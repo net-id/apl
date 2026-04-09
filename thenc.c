@@ -1,7 +1,4 @@
-#ifdef A1000
-HPC,NR,W,L,"THENC,7 Thorn of Enclosed Arrays      <861216.1327>"
-;
-#endif
+/* HPC,NR,W,L,"THENC,7 Thorn of Enclosed Arrays      <861216.1327>" */
 /* REFER TO COMPANION FILE '/DOC/THORNENC' FOR A FULL DESCRIPTION OF */
 /* THE ALGORITHM AND STACKS USED IN THENC() */
 #include "ext"
@@ -182,7 +179,7 @@ static shpth(){
       while(k){
          if(!Ib0[--k]){                /* If a 0 above rank 2... */
             wvrows=0;                  /*  then no rows are displayed */
-            return;
+            return 0;
          }
          wvrows=(wvrows+1)*Ib0[k];     /* add one row for each plane etc */
       }
@@ -207,7 +204,7 @@ static sum(){
       is+= *++lz;                      /* Sum rows in data stack */
       IFOVFGO(ER);                     /* If an overflow occurs, Abort, jump to return WSFULL */
    }
-   return;
+   return 0;
 ER:ef0=WSFULLerr;                      /* Set WSfull flag */
 }
 
@@ -294,7 +291,7 @@ START:
    cszds();       /* Calc no of rows+cols (as words) for data stk, in 'is' */
    n=is;
    RTNEON(chk());                 /* If no room for data stack, WSFULL*/
-   osptr=bdsoff+=is;                   /* mgn() changes Ssp, so use offset*/
+   bdsoff+=is; osptr=(itype*)bdsoff;   /* mgn() changes Ssp, so use offset*/
    vp=Ssp-=is;                         /* Bring down Ssp, adjust offset */
    vn=is/(BPL/BPW);                    /** Zero out the integers in is words*/
    vt=INT,fll();                       /* Zero dummy result area with fll()*/
@@ -501,7 +498,7 @@ static rplc(){
       pz+=n0+1;                        /* and mapping pointer */
 #else
       MBT1(cz,cz+1,bs=n0);             /* 'Pipe'-move them */
-      (char*)pz=cz+=bs+1;              /* Increase dest char ptr cz */
+      cz+=bs+1; pz=(itype*)cz;         /* Increase dest char ptr cz */
 #endif
    }
 }
@@ -574,30 +571,32 @@ int flgr,flgc;                         /* Local flag for boxes */
             stb cz;                    /* compiler. */
          };
 #else
-      cz=(char*)pz=(char*)vp+(osxorg+wvxoff)*colres+osyorg+wvyoff;
+      cz=(char*)vp+(osxorg+wvxoff)*colres+osyorg+wvyoff;
+      pz=(itype*)cz;
       if(flgc){                        /* If boxing cols...*/
          *cz++='M';
-         ++((char*)pz);
+         pz=(itype*)cz;
       }
       if(flgr)c='@',rplc();            /* If rowboxing, replicate '@' */
-      else (char*)pz+=wvcols-2L;       /* Else align to last col, 1st line */
+      else { pz=(itype*)((char*)pz+wvcols-2L); } /* Else align to last col, 1st line */
       if(wvrows>1L){                   /* Fill cols if more than one row */
          if(flgc){
             *(lx=Ib2)=wvcols-1L;       /*  Amount to skip to last col */
             lx[1]=colres-wvcols+1L;    /*  Amount to skip to start next row*/
-            (char*)pz-=is= *lx;bs=1;   /*  decrement pointer, set toggle */
+            pz=(itype*)((char*)pz-(is= *lx));bs=1; /*  decrement pointer, set toggle */
             n0=2*(wvrows-1L)+1L;       /*  n0 is loop counter */
             while(--n0){               /*   for all 'M' other than 1st/last*/
-               (char*)pz+=lx[bs= !bs];CZM;     /*   Incr pz according to toggle */
+               pz=(itype*)((char*)pz+lx[bs= !bs]);CZM; /*  Incr pz according to toggle */
                *cz++='M';
             }
-            ++((char*)pz);             /* pz aligned to 1st char of last row*/
+            pz=(itype*)((char*)pz+1);  /* pz aligned to 1st char of last row*/
          }
          else {
-            cz=(char*)pz+=(wvrows-1L)*colres-wvcols;/* pz set to 1st cha of last row */
+            cz=(char*)pz+(wvrows-1L)*colres-wvcols;
+            pz=(itype*)cz;             /* pz set to 1st char of last row */
          }
          if(flgr)c='F',rplc();         /* Replicate last row of '_' */
-         else (char*)pz+=wvcols-2L;    /* px now at last char */
+         else { pz=(itype*)((char*)pz+wvcols-2L); } /* px now at last char */
       }
       if(flgc){                        /* If boxing colums */
          CZM;                          /* Address bottom right corner */

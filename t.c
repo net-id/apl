@@ -1,7 +1,4 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"T,7 Quad Trap                       <861216.1340>"
-;
-#endif
+/* HPC,NR,W,L,MC,"T,7 Quad Trap                       <861216.1340>" */
 #include "ext"
 #include "qtmps"
 extern char Sn[],T1[],T2[],dlm,fil;
@@ -133,9 +130,9 @@ sermsg(){ /*moved to sermsg.mac, errmsgs in code space*/
   if(ef>0)if((cr=ef>1000&&ef<1008)||ef<96){
      cx=msgs[(cr=ef-(cr?900:0))-1];   /*The start of the error message*/
      len=strlen(msgs[cr-1]);          /*How long is the string*/
-     return cx;
+     return (int)(long)cx;
   }
-  0;
+  return 0;
  }
 #endif
 
@@ -177,14 +174,14 @@ trp(){
     eci is the current set of flags for Quad ec. SEE ALSO /DOC/TRAP*/
   
 RTRP:
-   cv=tmi,cec=eci,cl=py=pz=Sp,clc=lc,ttv=0;
+   cv=tmi,cec=eci,cl=(long)(py=pz=Sp),clc=lc,ttv=0;
 LP:
    if(mi=cv){           /*Is there a trap set at this level?*/
       MAP(px=pget());   /*Then get the enclosed elms of trap*/
       mi= *z;            /*Now get the action string*/
       MAP(pget());
       tc=0;             /*Initialise the Index into the tokenised trap vec*/
-      ac=ly=lz+*(lz-1); /*Set ac false and y points at end of list*/
+      ly=lz+*(lz-1),ac=(int)(long)ly; /*Set ac false and y points at end of list*/
       do{               /*Look thru action string for a suitable trap*/
          if(ac)++tc;    /*Increment trap count index if not a range*/
          if(0>*z) {     /*Is this a range?*/
@@ -209,7 +206,7 @@ LP:
       z+=13,sec=z[*z-1];
       if(cv=z[*z])--cv; 
       if(cec&0x4001&&ef!=1001){ 
-         if(sec&0x8000||Tsp==pz) cl=pz,cec=sec; 
+         if(sec&0x8000||Tsp==pz) cl=(long)pz,cec=sec;
       } 
    }
    clc=cr;
@@ -218,17 +215,17 @@ F:
    MAP(px); 
    if(tv==(ttv=z[tc]))ttv=0;
    if((tc=ac=='c')||cec&0x4001){
-      ++cv,tcl=pz;
+      ++cv,tcl=(long)pz;
       while(Tsp!=pz){ 
          MAP(pz); 
          pz+= *z,cr=z[1];
          if(clc){ 
             z+=13,z+= *z;
             if(*z&&cv!= *z)break;
-            tcl=pz; 
-            if(cec&0x4001){ 
+            tcl=(long)pz;
+            if(cec&0x4001){
                sec= *--z;
-               if(sec&0x8000||Tsp==pz)cl=pz,cec=sec;
+               if(sec&0x8000||Tsp==pz)cl=(long)pz,cec=sec;
             } 
             else if(!tc)break;
          }
@@ -278,21 +275,10 @@ CB:
    else if(ep) w=ep,xw(),dtok(),mi=w,mdc(),ep=len>250?250:len;
    else {
       *cy=1;
-#ifdef A1000
-      asm{
-         ldb Cb0;
-L:
-         lbt;
-         cpa "=D32";
-         jmp L;
-         adb "=D-1";
-         stb cx;
-      };
-#else
       cx=Cb0-1;            /*This might be a candidate for nnb()*/
       while(' '== *++cx);
       --cx;
-#endif
+
       ep=len=cy-cx;
       MBT1(cx,Cb0,len);
    }
@@ -404,7 +390,7 @@ CR:
    if(vt=INT,vn=tc/2,mgn()) goto C; 
    /* Now gen the token strings */
    n=tc,px=SCRATCH,py=vp,wmv(),mi=cv;
-   MAP(cl=pget());
+   cl=(long)pget();MAP((itype*)cl);
    *z=v,ns=m,clc=0; 
    do{
       xo=(BPW-1)&(int)(wo=clc*ns+z[clc+1]); 

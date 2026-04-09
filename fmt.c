@@ -1,7 +1,4 @@
-#ifdef A1000
-HPC,NR,W,L,"FMT,7 Format                          <861216.1327>"
-; 
-#endif
+/* HPC,NR,W,L,"FMT,7 Format                          <861216.1327>" */
 #include "ext"
 #ifdef A1000
 #define v3() vc3()  /*  ON for VC+ */ 
@@ -53,7 +50,7 @@ zro(){
 }
   
 rpfz(){
-   if(*cp=='0')return;
+   if(*cp=='0')return 0;
    if(rpf>0){
       if(cp!=ed){
          MBT1(cp,ed,e1);
@@ -133,7 +130,7 @@ litxt(){
 }
   
 rtxt(){
-   if(cy=(char*)y+yo,k=m+1,!lrt)return; 
+   if(cy=(char*)y+yo,k=m+1,!lrt)return 0;
    k0=(bs=fw>lrt)?lrt:fw; 
    MBT1(prt,cp=cy,k0);
    if(bs){
@@ -491,4 +488,3 @@ EN:
    w=0,Qpp=sQpp;
    RTN iflg=0,ef;
 }
-

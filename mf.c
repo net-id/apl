@@ -1,7 +1,4 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"MF,7 Monadic scalar fns              <861216.1325>"
-;
-#endif
+/* HPC,NR,W,L,MC,"MF,7 Monadic scalar fns              <861216.1325>" */
 #include "ext"
 #ifdef A1000
 #define b1 k= -m;L0:
@@ -95,41 +92,11 @@ L2:
 static fsg(){
 /*O:Floating point signum*/
   
-#ifdef A1000
-   asm{
-      lda m;
-      ada 0;
-      ldb 0;
-      cmb,inb;
-      cby;
-      ada y;
-      sta j1;
-      ldb x;
-L:
-      lda *1;
-      ssa;
-      jmp L1;
-      cle,sza;
-      cla,cme;
-      say *j1;
-      ela;
-      jmp L2; 
-L1: 
-      cca;
-      say *j1;
-L2:
-      isy;
-      say *j1;
-      adb"=D4";
-      isy;
-      jmp L;
-   };
-#else
    do{
       *ly++= *dx?(*dx<0?-1L:1L): 0L;   /*Always produces int result*/
       ++dx;
    }while(--m);
-#endif
+
 }
   
 mmul(){
@@ -371,40 +338,19 @@ static iab(){
 /*O:Integer absolute*/
   
    b1
-#ifdef A1000
-   asm{
-      ext".DNG";
-      dld *x;
-      ssa;
-      jsb".DNG";
-      dst *y;
-   };
-#else
    if((*ly= *lx)<0)*ly= -*lx;
-#endif
+
    ++lx,++ly e1
 }
   
 static fab(){
 /*O:Floating point absolute*/
   
-#ifdef A1000
-   asm{
-      ext"DVABS";
-      jsb"DVABS";
-      def *+6;
-      def *x;
-      def"=D1";
-      def *y;
-      def"=D1";
-      def m;
-   };
-#else
    do{
       if((*dy= *dx++)<0)*dy= -*dy;
       ++dy;
    }while(--m);
-#endif
+
 }
   
 mmod(){
@@ -504,4 +450,3 @@ msf(){
    f=mff[s-76],m=256,my=1024,mfin();
    return ef?DOMAINerr:ef;
 }
-

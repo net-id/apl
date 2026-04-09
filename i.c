@@ -11,7 +11,7 @@ fmat(){
 /*O:Floating point match routine*/
    if(vr){
       MAP(SCRATCH);
-      yo=y,xo=y=z,(*g)(),x=xo,y=yo;
+      {itype *_sy=y,*_sx; _sx=y=z,(*g)(),x=_sx,y=_sy;}
    }
    switch(vt){
    case INT:
@@ -31,25 +31,11 @@ E:          return ef=1;
          ++dx,++dz;
       }
       while(++k);
-      return;
+      return 0;
    }
-#ifdef A1000
-   asm{
-      lda x;
-      ldb y;
-      cmw k;
-      jmp *+3;
-      jmp E;
-      jmp E;
-      lda *0;
-      xor *1;
-      and j;
-      sta ef;
-   };
-#else
    IFWRDSEQGO(x,y,k,E);    /*If compare fails*/
    ef=(x[k]^y[k])&j;       /*Make sure the end compares as well for bool*/
-#endif
+
 }
   
 mat(){
@@ -61,18 +47,8 @@ L:
    xu(),xw();
    if(ur!=wr)return RANKerr;
    m=ur*(BPL/BPW);
-#ifdef A1000
-   asm{
-      lda Ib0;
-      ldb Ib1;
-      cmw m;
-      jmp *+3;
-      jmp DOMER;
-      jmp DOMER;
-   };
-#else
    IFWRDSEQGO(x,y,m,DOMER);     /*Not = */
-#endif
+
    if(!un)goto E0;            /*More to do*/
    if(vr=wt!=(vt=ut)){
       if(wt>ut)vt=wt,px=wp,wp=up,up=px,wt=ut;
@@ -89,7 +65,7 @@ L:
    }
    else if(vt>=ENC){
       if(Ib>=(Ib0+Bsz/BPL))return NONCEerr;  
-      *Ib=n0,*++Ib=uo,*++Ib=wo,++Ib,n0=un,uo=up,wo=wp;
+      *Ib=n0,*++Ib=uo,*++Ib=wo,++Ib,n0=un,uo=(long)up,wo=(long)wp;
       goto L0;
    }
    px=wp,py=up,f=fmat,n=un,v2();
@@ -117,20 +93,8 @@ sf0(){
 }
   
 pf0(){
-#ifdef A1000
-   asm{
-      cla;           /*j is always positive so clear A*/
-      ldb j;         /*This makes A,B a double*/
-      jsb".DAD";
-      def is;        /*Add on is*/
-      jsb".DSB";
-      def n0;        /*Less n0*/
-      dst *y;        /*Put the result at y*/
-      isz ef0;
-   };
-#else
    *ly=(is+j)-n0;++ef0;
-#endif
+
 }
   
 fndf(){
@@ -249,7 +213,7 @@ fnd(){
       min=0,n=256,f=cset,g=cfnd;
       goto SET;
    case ENC:
-      mi=w,mdc(),mi=u,mdc(),n1=up,n2=un,n3=wp;
+      mi=w,mdc(),mi=u,mdc(),n1=(long)up,n2=un,n3=(long)wp;
       do{
          MAP(n3+--vn);
          st= *z,is=0;

@@ -1,14 +1,6 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"SY,7 System commands                 <861216.1341>"
-;
-extern FmpOpen(),FmpClose(),exec(),FmpPurge(),FmpRead(),FmpWrite();
-extern myidadd(),lurq();
-extern unpu() alias "FmpUnPurge";
-extern *dcb,dcb0[];
-#else
+/* HPC,NR,W,L,MC,"SY,7 System commands                 <861216.1341>" */
 #include <stdio.h>
 extern FILE *dcb,*dbc0;
-#endif
 #include "ext"
 /*efine NEWCLWS /* */
 #include "qtmps"

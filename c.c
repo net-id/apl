@@ -1,7 +1,14 @@
-#ifdef A1000
-HPC,NR,W,L,MC,"C,7 Conversions + ct                <861223.1224>"
-;
-#endif
+/* HPC,NR,W,L,MC,"C,7 Conversions + ct                <861223.1224>"
+   This file contains the C implementations of the conversion functions and the ct function. 
+   The code is written in C17 and includes some assembly code for the A1000 architecture. 
+   The functions include 
+   cfi (convert to float), cfb (convert to boolean), cib (convert integer to boolean), 
+   cbi (convert boolean to integer), cif (convert integer to float), cbf (convert boolean to float), 
+   fi (floating point inner product), cw (convert with rank and type checking), 
+   cwv (convert with rank and type checking for vectors), cu (convert with rank and type checking for scalars), 
+   cuv (convert with rank and type checking for vectors), and ci (convert to integer). 
+   The code also defines some constants and includes some header files.
+*/
 #include "ext"
 
 #ifdef A1000
@@ -335,7 +342,7 @@ cw(){
    }
    if(uf)px=up,n=un;
    else px=wp,n=wn; 
-   l1=py; 
+   l1=(long)py;
    switch(uf?ut:wt){
 #ifdef A1000
    case BOO:
@@ -371,8 +378,8 @@ cw(){
    }
    v2();
    if(!ef){
-      if(uf)up=l1,ut=vt;
-      else wp=l1,wt=vt;
+      if(uf)up=(itype*)l1,ut=vt;
+      else wp=(itype*)l1,wt=vt;
       return NOERROR;
    }
 E:

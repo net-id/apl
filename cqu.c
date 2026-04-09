@@ -1,7 +1,16 @@
-#ifdef A1000
+/*
 HPC,NR,W,L,"CQU,7 Circle/Query Utilities ... RHO    <861216.1330>"
-;
-#endif
+This file contains the code for the circle and query utility functions in the APL interpreter.
+The code is written in C17 and includes some assembly code for the A1000 architecture.
+The functions include clrws (clear workspace), cfi (convert to float), cfb (convert to boolean), 
+   cib (convert integer to boolean), cbi (convert boolean to integer), cif (convert integer to float), 
+   cbf (convert boolean to float), fi (floating point inner product),   cw (convert with rank and type checking), 
+   cwv (convert with rank and type checking for vectors),   cu (convert with rank and type checking for scalars),    
+   cuv (convert with rank and type checking for vectors), ci (convert to integer), mcir (monadic circle),   
+   dcir (dyadic circle), deal2 (alternative algorithm for dyadic query), rsqrl (reset the random link), and mque (monadic query).
+The code also defines some constants and includes some header files.
+
+*/
 #include "defs"
   
 extern Qio,k,ef,m,m0,ix,iz;
@@ -286,4 +295,3 @@ dciot(){
    while(--k);                         /* continue for all elts. */
 }
 /* End of Circle,Query f functions */
-
