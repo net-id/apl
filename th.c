@@ -311,21 +311,16 @@ L:
 }
  
 shw(){
-   fprintf(stderr,"DBG shw() ut=%d DAT=%d FUN=%d luout=%d\n",(int)ut,DAT,FUN,(int)luout);
    if(j=ut,qoutf){
       if(j!=DAT)return NONCEerr;
       if(!bp){
          u_=v;
-         RTNEON(apctlw());  
+         RTNEON(apctlw());
       }
    }
-   fprintf(stderr,"DBG shw A: qoutf=%ld\n",(long)qoutf);
    RTNEON(!luout);
-   fprintf(stderr,"DBG shw B: j=%d DAT=%d\n",(int)j,DAT);
    if(j!=DAT)return len=3,cx="fun mop dop nil"+4*(j-FUN),out(),0;
-   fprintf(stderr,"DBG shw before xw: u=%d w=%d\n",(int)u,(int)w);
    w=u,xw();
-   fprintf(stderr,"DBG shw after xw: wp=%p wn=%ld wt=%d wr=%d\n",(void*)wp,(long)wn,(int)wt,(int)wr);
    if(!wn){
 EMPTY:if(wr==1)len=0,out();
       return 0;

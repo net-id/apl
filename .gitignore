@@ -1,3 +1,4 @@
 apl
 *.o
 *.tmp
+.vscode

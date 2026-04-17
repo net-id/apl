@@ -752,7 +752,6 @@ mgn(){
    ms->msp=Tep;            /*Where did the data go in the ws*/
    Tep+=l3;                /*Update Tep to beyond the entry*/
    ms->mstr=vt*256+vr;     /*Put in the type and rank info*/
-   fprintf(stderr,"DBG mgn: v=%d vt=%d vr=%d vn=%ld mstr=%ld ms->msp=%p\n",(int)v,(int)vt,(int)vr,(long)vn,(long)ms->mstr,(void*)ms->msp);
    Nmi=ms->msc;            /*What is the next mi to be used*/
    ms->msc=1;              /*There is only 1 thing pointing to the entry*/
    RTN NOERROR;

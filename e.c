@@ -323,7 +323,6 @@ EF_11:
       };
 #endif
 FIN:
-   fprintf(stderr,"DBG FIN lc=%d u=%d af=%d\n",(int)lc,(int)u,(int)af);
    mi=tv,mdc(),tv=0;
    if(!lc){
       rst();
@@ -334,7 +333,7 @@ FIN:
 S0:
       mi=u,mdc();
    }
-   if(0>lc){fprintf(stderr,"DBG ex ret0 at lc<0, lc=%d u=%d\n",(int)lc,(int)u);return 0;}
+   if(0>lc)return 0;
    plc= ++lc;
 BRN:                                   /*Branch token*/
    if(lc>=ml||1>lc){                   /*Is the line # out of range?*/
@@ -363,14 +362,10 @@ L1:
    if(bc&&!eci)            /*User has bit break and Qec is 0?*/
       return ATTNerr;
    mi=tv,tvp=pget();       /*Set tvp to point to the current token vector*/
-   fprintf(stderr,"DBG L1 tv=%d tvp=%p lc=%d tvp[-3]=%d tvp[-2]=%d tvp[-1]=%d\n",
-      (int)tv,(void*)tvp,(int)lc,(int)tvp[-3],(int)tvp[-2],(int)tvp[-1]);
    MAP(tvp-1L);                  /*How long is the token vector*/
    if(z[(d2= *z)-1]==LAT)d2-=2;   /*If the last token is a comment ignore it*/
    d1=z[2]==COT&&d2>1?2:0;       /*If there is a line label adj for it*/
    u=0;                          /*There is no result*/
-   fprintf(stderr,"DBG L1 d2=%d d1=%d tokens[0..2]=%d %d %d\n",(int)d2,(int)d1,
-      (d2>0?(int)*(tvp+0):-999),(d2>1?(int)*(tvp+1):-999),(d2>2?(int)*(tvp+2):-999));
 L2:
    if((d0=d1)==d2)goto FIN;      /*Finished an expression between diamonds*/
    if(u){                        /*Was there a result?*/
@@ -395,7 +390,6 @@ S1:
             drf();                  /*Get rid of the line that called it*/
          }while(lc>=0);             /*While we're still not at Imm Ex*/
       }
-      fprintf(stderr,"DBG ex ret0 naked branch\n");
       return 0;                     /*Go back to Immediate Execution*/
    }
    goto NEW_PHRASE;
@@ -518,7 +512,7 @@ I6:
          rst();            /*Reset out of this fn*/
          drf();            /*De refrence the line that called it*/
       }
-      if(!r){fprintf(stderr,"DBG ex ret0 BRT !r\n");return 0;} /*If not with a fn then return to Imm Ex*/
+      if(!r)return 0; /*If not with a fn then return to Imm Ex*/
       plc=lc;              /*Hold onto the previous line counter for STOP*/
       MAP(up);             /*Get the value of the branch*/
 #ifdef JUSTC
@@ -667,7 +661,6 @@ E4:
    *z=v,z[1]=DAT,v=0; /*Put the result on the stack, mark it DAT*/
    RTNEON(ef);       /*Return if there was an error*/
 E1:
-   fprintf(stderr,"DBG E1 *z=%d t=%d tt=%d lc=%d Ssp=%ld Sp=%ld\n",(int)*z,(int)t,(int)tt,(int)lc,(long)Ssp,(long)Sp);
    if(*z||t==TRC){   /*If there was a result or we're tracing*/
       e=0;
       if(tt)goto L9;

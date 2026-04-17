@@ -114,7 +114,6 @@ IN:
    }
 #endif
    if(ef=tok()){
-      fprintf(stderr,"DBG tok()=%d\n",ef);
       if(ef!=16){
 LNERR:
          if(ep=v,len=v=0,e= -1,trp()) goto L1;
@@ -131,7 +130,7 @@ L1:
 #endif
    tv=v,v=0,ef= -1;
 L:
-   {int dbg_ef=ex(); fprintf(stderr,"DBG ex()=%d ut=%d\n",dbg_ef,(int)ut); ef=dbg_ef;}
+   ef=ex();
    switch(ef){
    case 0:
       goto IN;
