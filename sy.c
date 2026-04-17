@@ -14,7 +14,7 @@ extern snam(),ltc(),sdo(),nnb1(),svp(),sermsg(),toup(),tolo();
 extern dsk(),privusr,ske(),pfn(),gents();
 extern clc,ctv,cr,crs,ep,c,ldc,opc,msfo,Qss,Qnt,rwf;
 extern long acn,fnm,oty,cln,posn;
-extern char T1[],T2[],*endz,*endx,*cp;
+extern char T1[],*endz,*endx,*cp;
 extern int yr,fer,*ip;
 static i,lnm,syf;    /* syf is arg flag for sys commands */
 char opnw[]="wcxor",opnr[]="xords";

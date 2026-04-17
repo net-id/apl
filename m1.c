@@ -143,7 +143,7 @@ miot(){
 #ifdef A1000
    pz=vp,n0=vn,m0=512,is=Qio,f0=iot,v0();
 #else
-   is=Qio-1,lz=(long*)vp-1;   /*Start the count and pointer 1 low each*/
+   is=Qio-1,lz=(itype*)vp-1;  /*Start the count and pointer 1 low each*/
    do{
       *++lz= ++is;
    }while(--vn);

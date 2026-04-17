@@ -8,7 +8,7 @@
 
 itype *x,*y,*z;
 double *dx,*dy,*dz;   /* typed double views of x,y,z; updated by MAP/m1/m2/m3 */
-long *vrp;
+itype *vrp;
 int ia[50],Bsz=BSZ;  /*Remember to change Cb0[] below*/
 #ifdef A1000
 long tvp,up,vp,wp,un,vn,wn,uo,vo,wo,px,py,pz,n,n0,n1,n2,n3,is;
@@ -93,12 +93,12 @@ int ef,ef0,m,m0,k,ix,iy,iz,mx,my,mz,xo,yo,zo,bs,wpe,len,si,sl,bc,mi,Bsz2=BSZ-2;
 (*f)(),(*f0)(),(*g)();
 char *cx,*cy,*cz,*sa,Cb0[BSZ];
 double fs;
-long *Ib,*Ib0=(long*)Cb0;
-long *Ib1=(long*)Cb0+17;
-long *Ib2=(long*)Cb0+17+15;
-long *Ib3=(long*)Cb0+17+15+17;
-long *Ib4=(long*)Cb0+17+15+17+15;
-long *ups=(long*)Cb0+17+15+17+15+15;
+itype *Ib,*Ib0=(itype*)Cb0;
+itype *Ib1=(itype*)Cb0+17;
+itype *Ib2=(itype*)Cb0+17+15;
+itype *Ib3=(itype*)Cb0+17+15+17;
+itype *Ib4=(itype*)Cb0+17+15+17+15;
+itype *ups=(itype*)Cb0+17+15+17+15+15;
 static long l2,l3,l4;
 extern sdc(),exec();
 long emi,mxl,myl,ixl,iyl;

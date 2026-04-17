@@ -1,7 +1,8 @@
 /* HPC,NR,W,L,MC,"T,7 Quad Trap                       <861216.1340>" */
 #include "ext"
 #include "qtmps"
-extern char Sn[],T1[],T2[],dlm,fil;
+extern char Sn[],T1[],dlm,fil;
+extern const char *T2[];
 extern tok(),out(),pout(),drf(),rst(),dcb0[],snam(),sdc();
 extern xw(),dtok(),ltc(),fll(),mbt(),mvw(),qbox(),fmvc(),nnb(),dtb();
 extern bounce(),gtrlu(),apctl();
@@ -152,9 +153,12 @@ pfn(){
    MAP(pget()); 
    cx=Cb0,mi=z[crs],crs=len;
    if(FSI>mi){
-      if(mi==11)mi=30;
-      *(int*)Ib0=8224,*cx=T2[mi],cx+=2; 
-      if(mi!=30)goto F; 
+      if(mi==11)mi=19;          /* map old LPT token to DET (∇) for display */
+      {const char *ts=T2[mi];
+       *(int*)Ib0=8224;
+       if(ts && ts[0]){while(*ts)*cx++=*ts++;} *cx++=' ';
+      }
+      if(mi!=19)goto F;
    }
    else snam();   
    cz=cx,is=ep=clc; 
@@ -297,7 +301,7 @@ CT:
       }
       cx=Cb0,out(),*cx=' ';
       MBT1(cx,cx+1,ep+=ns);
-      cx[ep]=')',len=ep+1;
+      cx[ep]='^',len=ep+1;
 FIN:
       out();
    }

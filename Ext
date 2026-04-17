@@ -1,5 +1,6 @@
 #include "defs"
-extern long *Ib,*Ib0,*Ib1,*Ib2,*Ib3,*Ib4,*ups,*vrp,nw();
+extern itype *Ib,*Ib0,*Ib1,*Ib2,*Ib3,*Ib4,*ups,*vrp;
+extern long nw();
 #ifdef A1000
 extern long pget();
 extern long rp,up,vp,wp,un,vn,wn,uo,vo,wo,px,py,pz,n,n0,n1,n2,n3,is;

@@ -2,7 +2,7 @@
 #include "ext"
 extern x1,x2,x3,mvw(),pmv(),gdata();
 extern mlt(),xu(),xw(),nwt(),ty(),fmve(),wmic(),sym(),svuse(),cuv();
-static long *uz;
+static itype *uz;
 static j;
   
 pun(){

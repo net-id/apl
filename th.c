@@ -13,6 +13,7 @@ static j,j1,j2=2,j3,fw,pw,e2,e3,e4;
 static itype *jp;     /* j-as-itype-pointer (used in idtk) */
 static double *djp;   /* j-as-double-pointer (used in fdtk) */
 static char *e4p;     /* e4-as-char-pointer */
+static char *e3p;     /* end-of-chunk pointer in ctc() (was int e3 = ptr truncation) */
 static long ncr;                       /* No. of chars displayed per row */
   
 ot(){
@@ -34,9 +35,12 @@ ot(){
 ltc(){
    if(!(nf=0>is))is= -is;
    do *--cz='0'-is%10;
-   while(is/=10); 
-   if(nf)*--cz='@'; 
-} 
+   while(is/=10);
+   if(nf){                       /* prepend APL high-minus ¯ (UTF-8: C2 AF) */
+      *--cz=(char)0xAF;
+      *--cz=(char)0xC2;
+   }
+}
 
 opw(){
    cp=(char*)Ib2+8,*(Ib2+1)= *Ib2=0X20202020;
@@ -73,14 +77,14 @@ btc(){
 
 ctc(){
 M:
-   CZM; 
-   e3=(int)(cz+len); /*Hold onto the last char and it's posn*/
-   e2= *(char*)e3;
-   *(char*)e3 = 127; /*CRLF*/
+   CZM;
+   e3p=cz+len; /*Hold onto the last char and its posn*/
+   e2= *e3p;
+   *e3p = 127; /*CRLF*/
    e4p=cz;
-   while(127!=*(char*)e4p++);
-   *(char*)e3= e2;    /*Replace the character at the end*/
-   if((char*)e3==e4p-1)goto O;
+   while(127!=*e4p++);
+   *e3p= e2;    /*Replace the character at the end*/
+   if(e3p==e4p-1)goto O;
 
    len=e4p-cz;
    e4p=0;

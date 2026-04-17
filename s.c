@@ -3,7 +3,8 @@
 #include "qtmps"
 #define AQN Mmp   /* Address of QuadNames */
 extern xu(),xw(),sind(),fll(),wmic(),sgn(),sdc(),sbl(),pun(),x1,x2,x3,mbt();
-extern char T1[],T2[];
+extern char T1[];
+extern const char *T2[];
 extern int ep;
 extern Qss,Qsn,Qnn,Qfn,Qnt,ce,dtb(),cbteq();
 extern bdtk(),idtk(),fdtk(),nnb();
@@ -39,9 +40,9 @@ static cdtk(){
       cx+=1+(int)un;
    }
    else{
-      *cx++='K';     /*Quotted strings*/
-      while(cz!=cy)if('K'==(*cx++= *cz++))*cx++='K';
-      *cx++='K',*cx++=' ';
+      *cx++='\'';    /*Quoted strings*/
+      while(cz!=cy)if('\''==(*cx++= *cz++))*cx++='\'';
+      *cx++='\'',*cx++=' ';
    }
 }
  
@@ -60,8 +61,9 @@ dtok(){
          if(!(mi= *x))goto L0;
          if(0>mi){
             if(mi== -5){
-               c=74;
-               goto P;
+               /* jot (∘) stored as negative token -5 */
+               {const char *ts="∘"; cx-=j; j=0; while(*ts)*cx++=*ts++;}
+               goto L;
             }
             s=u,u=mi,Ib1+=95,xu(),Ib1-=95,u=s;
             if(ur>1)goto L0;
@@ -69,28 +71,29 @@ dtok(){
             switch(ut){
             case BOO:
                bdtk();
-               break; 
-            case INT: 
+               break;
+            case INT:
                idtk();
-               break; 
-            case F_P: 
+               break;
+            case F_P:
                fdtk();
-               break; 
-            case CHA: 
+               break;
+            case CHA:
                cdtk();
-               break; 
-            default:  
-L0: 
+               break;
+            default:
+L0:
                MBT1(cz="PParrayPP ",cx,10);
                cx+=10;
             }
          }
          else if(110>mi){
-            if(c=T2[mi]){
-P:
-               *(cx-=j)=c,j=0,++cx;
+            {const char *ts=T2[mi];
+            if(ts && ts[0]){
+               cx-=j; j=0;
+               while(*ts)*cx++=*ts++;
                goto L;
-            }
+            }}
             if(!(mi&0xFC))goto L;
             CMP(AQN+Qsn*Qss/BPA);
             sa=cz+(mi-35)*Qss,sbl();
@@ -214,14 +217,14 @@ static nnb1(){
   
 ctil(){
    is=c-'0';
-   while(3==T1[c= *cx++])is=10*is+(c-'0');
+   while(3==T1[(unsigned char)(c= *cx++)])is=10*is+(c-'0');
 }
   
 static ctio(){
 /*See also the file  Q0*/
   
    is=c-'0',n=0L;
-   while(3==T1[c= *cx++]){  /*While it is numeric*/
+   while(3==T1[(unsigned char)(c= *cx++)]){  /*While it is numeric*/
       is*=10;           /*Move the other units up*/
       IFOVFGO(N);       /*Check for overflow*/
       is+=c-'0';        /*Add on the new units*/
@@ -244,25 +247,25 @@ tok(){
    nf=0L,cy=(cx=Cb0)+len;
    un=(long)SCRATCH;
    while(' '== *--cy);
-   *++cy=' ',cy[1]='K';
+   *++cy=' ',cy[1]='\'';
    if(nnb1()){
       if(c=='"')return 16;
       if(c==']'&&cy==cx+1)return mi=v= -6,mic(),NOERROR;  /*Naked Branch*/
       do{
-         switch(v=T1[c]){  
+         switch(v=T1[(unsigned char)c]){
          case 0:
             ef=SYNTAXerr;
             goto E;
          case 1:
-            if(c!='L'){
-               ++cx,v='A'==c?ALFA:OMEG;
+            if(c!='L' && (unsigned char)c!=0xEC){
+               ++cx,v=('A'==c||(unsigned char)c==0xE1)?ALFA:OMEG;
 L2:
                SMP(v);
                ++ss->ssc;
                goto NT;
             }
             sa=cx;
-            while(2==T1[*++cx]);
+            while(2==T1[(unsigned char)*++cx]);
             if(1==(sl=cx-sa)){
                v=32;
                goto NT;
@@ -275,7 +278,7 @@ L2:
             goto E; /*D.E.for bad Lnames*/
          case 2:
             sa=cx;
-            while(2==(v=T1[*++cx])||3==v);
+            while(2==(v=T1[(unsigned char)*++cx])||3==v);
             if((sl=cx-sa)>SNL)sl=SNL;
             if(ef=sgn())goto E;
             v=si;
@@ -342,7 +345,7 @@ P:
             ++vn;
             if(nnb1()){
                nf=is=0L;
-               switch(T1[c]){
+               switch(T1[(unsigned char)c]){
                case 3:
                   goto I;
                case 4:
@@ -366,13 +369,13 @@ S:
          case 7:
             sa= ++cx;
 CV:
-            while('K'!= *cx)++cx;
+            while('\''!= *cx)++cx;
             if(cx>cy){
                ef=SYNTAXerr;
                goto E;
             }
             cz=cx;
-            if('K'== *++cx){
+            if('\''== *++cx){
                m=2+cy-cx;
                MBT1(cx,cz,m); 
                --cy;

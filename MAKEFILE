@@ -2,7 +2,7 @@ OBJS = clr.o d.o df.o dt.o k.o m.o ma.o n.o p.o p0.o s.o u.o e.o th.o \
 	dth.o fd.o ind.o m1.o t.o m2.o m3.o thenc.o q1.o pk.o c.o q0.o \
 	fmt.o fmtp.o rs.o o.o uc.o mf.o unixos.o st.o sv.o i.o cq.o cqu.o
 
-CFLAGS = -g -c
+CFLAGS = -g -c -Idefs -Iext -Iqtmps
 
 INC_D = defs aplerrno.h
 
@@ -11,121 +11,121 @@ INC_E = ext defs aplerrno.h
 INC_F = ext defs aplerrno.h qtmps filestructs.h
 
 apl : $(OBJS)
-	cl -o apl $(OBJS)
+	clang -o apl $(OBJS)
 
 clr.o : clr.c $(INC_E) qtmps
-	cl $(CFLAGS) clr.c
+	clang $(CFLAGS) clr.c
 
 d.o : d.c $(INC_D)
-	cl $(CFLAGS) d.c
+	clang $(CFLAGS) d.c
 
 df.o : df.c $(INC_E)
-	cl $(CFLAGS) df.c
+	clang $(CFLAGS) df.c
 
 k.o : k.c $(INC_E)
-	cl $(CFLAGS) k.c
+	clang $(CFLAGS) k.c
 
 dt.o : dt.c $(INC_D)
-	cl $(CFLAGS) dt.c
+	clang $(CFLAGS) dt.c
                                                                                                   
 m.o : m.c $(INC_E)
-	cl $(CFLAGS) m.c
+	clang $(CFLAGS) m.c
 
 ma.o : ma.c $(INC_E) qtmps
-	cl $(CFLAGS) ma.c
+	clang $(CFLAGS) ma.c
        
 n.o : n.c $(INC_E) qtmps
-	cl $(CFLAGS) n.c
+	clang $(CFLAGS) n.c
 
 p.o : p.c $(INC_E) qtmps
-	cl $(CFLAGS) p.c
+	clang $(CFLAGS) p.c
 
 p0.o : p0.c $(INC_E)
-	cl $(CFLAGS) p0.c
+	clang $(CFLAGS) p0.c
 
 e.o : e.c $(INC_E) qtmps
-	cl $(CFLAGS) e.c
+	clang $(CFLAGS) e.c
 
 pk.o : pk.c $(INC_E) qtmps
-	cl $(CFLAGS) pk.c
+	clang $(CFLAGS) pk.c
 
 fmt.o : fmt.c $(INC_E)
-	cl $(CFLAGS) fmt.c
+	clang $(CFLAGS) fmt.c
 
 fmtp.o : fmtp.c $(INC_E)
-	cl $(CFLAGS) fmtp.c
+	clang $(CFLAGS) fmtp.c
 
 o.o : o.c $(INC_E) qtmps
-	cl $(CFLAGS) o.c
+	clang $(CFLAGS) o.c
 
 uc.o : uc.c $(INC_E)
-	cl $(CFLAGS) uc.c
+	clang $(CFLAGS) uc.c
 
 mf.o : mf.c $(INC_E)
-	cl $(CFLAGS) mf.c
+	clang $(CFLAGS) mf.c
 
 unixos.o : unixos.c $(INC_E)
-	cl $(CFLAGS) unixos.c
+	clang $(CFLAGS) unixos.c
 
 st.o : st.c $(INC_E)
-	cl $(CFLAGS) st.c
+	clang $(CFLAGS) st.c
 
 sv.o : sv.c $(INC_E)
-	cl $(CFLAGS) sv.c
+	clang $(CFLAGS) sv.c
 
 u.o : u.c $(INC_E) qtmps
-	cl $(CFLAGS) u.c
+	clang $(CFLAGS) u.c
 
 s.o : s.c $(INC_E) qtmps
-	cl $(CFLAGS) s.c
+	clang $(CFLAGS) s.c
 
 th.o : th.c $(INC_E) qtmps
-	cl $(CFLAGS) th.c
+	clang $(CFLAGS) th.c
 
 dth.o : dth.c $(INC_E)
-	cl $(CFLAGS) dth.c
+	clang $(CFLAGS) dth.c
 
 fd.o : fd.c $(INC_E) qtmps
-	cl $(CFLAGS) fd.c
+	clang $(CFLAGS) fd.c
 
 ind.o : ind.c $(INC_E)
-	cl $(CFLAGS) ind.c
+	clang $(CFLAGS) ind.c
 
 m1.o : m1.c $(INC_E)
-	cl $(CFLAGS) m1.c
+	clang $(CFLAGS) m1.c
 
 t.o : t.c $(INC_E) qtmps
-	cl $(CFLAGS) t.c
+	clang $(CFLAGS) t.c
 
 m2.o : m2.c $(INC_E)
-	cl $(CFLAGS) m2.c
+	clang $(CFLAGS) m2.c
 
 m3.o : m3.c $(INC_E) qtmps
-	cl $(CFLAGS) m3.c
+	clang $(CFLAGS) m3.c
 
 thenc.o : thenc.c $(INC_E) qtmps
-	cl $(CFLAGS) thenc.c
+	clang $(CFLAGS) thenc.c
 
 q1.o : q1.c $(INC_E) qtmps
-	cl $(CFLAGS) q1.c
+	clang $(CFLAGS) q1.c
 
 c.o : c.c $(INC_E) qtmps
-	cl $(CFLAGS) c.c
+	clang $(CFLAGS) c.c
 
 q0.o : q0.c $(INC_E)
-	cl $(CFLAGS) q0.c
+	clang $(CFLAGS) q0.c
 
 rs.o : rs.c $(INC_E) qtmps
-	cl $(CFLAGS) rs.c
+	clang $(CFLAGS) rs.c
 
 i.o : i.c $(INC_E) qtmps
-	cl $(CFLAGS) i.c
+	clang $(CFLAGS) i.c
 
 cq.o : cq.c $(INC_E) qtmps
-	cl $(CFLAGS) cq.c
+	clang $(CFLAGS) cq.c
 
 cqu.o : cqu.c $(INC_E) qtmps
-	cl $(CFLAGS) cqu.c
+	clang $(CFLAGS) cqu.c
 
 
 

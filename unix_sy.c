@@ -22,6 +22,8 @@ extern nnb(), nnb1(), mbt();
 extern x1, x2, x3, c, len;
 extern char *cx, *cy, *cz, *cp, Cb0[];
 
+extern void init_extended_keyboard();
+
 static int syf;
 static int j2 = 2;
 
